@@ -10,3 +10,12 @@ Cause: It was a distribution group created in Microsoft 365. Entra ID can show t
 Fix: Deleted it from the Microsoft 365 admin center instead.
 
 Lesson: Check a group's type and source before trying to change it. The source tells you which system owns it.
+
+## 2. Azure blocked the subscription
+Problem: Creating a pay-as-you-go subscription failed with "user is not eligible for an Azure account."
+
+Cause: Microsoft flagged the account for review on their side. Billing setup and payment method were both fine.
+
+Fix: Sent a review request through aka.ms/AccountReview. Built the Windows Server VM locally so the lab could keep moving.
+
+Lesson: Some blocks come from the vendor, not your configuration. Read the error, confirm your own setup is correct, then go to the right support channel.
