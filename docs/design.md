@@ -42,3 +42,33 @@ Each role gets these groups automatically on day one.
 - Contractors also get HP-Contractors. Their account turns off on their end date.
 - When someone leaves, all access is removed the same day.
 - When someone changes jobs, old groups are removed and new ones added. No leftover access.
+
+## Field map
+How each HR field shows up in the other systems.
+
+| HR field | Okta | Active Directory | Entra ID |
+|---|---|---|---|
+| employee_id | employeeNumber | employeeID | employeeId |
+| first_name | firstName | givenName | givenName |
+| last_name | lastName | sn | surname |
+| job_title | title | title | jobTitle |
+| department | department | department | department |
+| manager_id | manager | manager | manager |
+| employee_type | userType | employeeType | employeeType |
+| status | user status | enabled or disabled | accountEnabled |
+| end_date | used for contractor expiry | accountExpires | synced from AD |
+
+## Username rule
+- Login and email: first.last@havlundpharma.com, all lowercase.
+- If the name is taken, add a number (anna.jensen2).
+
+## Where users go in AD
+Each department has its own folder (OU) under corp.havlundpharma.com:
+- Users > IT
+- Users > HR
+- Users > Quality
+- Users > R&D
+- Disabled Users (leavers move here)
+
+## Note
+Some fields may not pass through every system the way this table shows. Each one gets tested during the build. Anything that doesn't work goes in the problem log with the fix.
