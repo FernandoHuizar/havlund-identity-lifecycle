@@ -22,3 +22,23 @@ That matters more in pharma. GDPR, NIS2, and FDA 21 CFR Part 11 all expect a com
 | HR | HR Generalist, HR Manager |
 | Quality | QA Specialist, QA Manager |
 | R&D | Research Scientist, Lab Technician |
+
+## Access by role
+Each role gets these groups automatically on day one.
+
+| Role | Groups |
+|---|---|
+| IT Support Specialist | HP-All-Staff, HP-IT-Support |
+| System Administrator | HP-All-Staff, HP-IT-Support, HP-IT-Admins |
+| HR Generalist | HP-All-Staff, HP-HR-Staff |
+| HR Manager | HP-All-Staff, HP-HR-Staff |
+| QA Specialist | HP-All-Staff, HP-QA-Edit |
+| QA Manager | HP-All-Staff, HP-QA-Approve |
+| Research Scientist | HP-All-Staff, HP-RD-Data, HP-Lab-Computers |
+| Lab Technician | HP-All-Staff, HP-Lab-Computers |
+
+## Access rules
+- Nobody can be in HP-QA-Edit and HP-QA-Approve at the same time. The person who writes a quality record can't approve it.
+- Contractors also get HP-Contractors. Their account turns off on their end date.
+- When someone leaves, all access is removed the same day.
+- When someone changes jobs, old groups are removed and new ones added. No leftover access.
