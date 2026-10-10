@@ -12,7 +12,7 @@ That matters more in pharma. GDPR, NIS2, and FDA 21 CFR Part 11 all expect a com
 
 ## Scope
 - HR export (CSV): 15 fake employees
-- Okta: up to 9 active users at a time (free plan limit)
+- Okta: pilot with the IT and Quality teams (7 users). Leaves 2 open spots for testing new hires. The free plan allows 10 active users and the admin account uses 1.
 - Drift check script: compares all 15 HR records against Okta, AD, and Entra ID
 
 ## Departments and roles
@@ -53,10 +53,10 @@ How each HR field shows up in the other systems.
 | last_name | lastName | sn | surname |
 | job_title | title | title | jobTitle |
 | department | department | department | department |
-| manager_id | manager | manager | manager |
+| manager_id | managerID | manager | manager |
 | employee_type | userType | employeeType | employeeType |
 | status | user status | enabled or disabled | accountEnabled |
-| end_date | used for contractor expiry | accountExpires | synced from AD |
+| end_date | endDate (custom field, added later) | accountExpires | synced from AD |
 
 ## Username rule
 - Login and email: first.last@havlundpharma.com, all lowercase.
