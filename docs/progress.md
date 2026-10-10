@@ -10,9 +10,8 @@ Where the lab stands right now. Updated as each part is finished.
 - havlundpharma.com added and verified as the primary domain
 - Azure budget alert set to $10 a month
 - Fake HR export (CSV) with 15 employees
-
-## Waiting
 - Azure block removed by Microsoft. Subscription havlund-lab created with a $10 budget.
+- Okta service app havlund-hr-sync created (private key sign-in, 4 scopes, Org Admin role)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
