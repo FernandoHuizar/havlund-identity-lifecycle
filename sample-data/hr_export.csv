@@ -1,0 +1,16 @@
+employee_id,first_name,last_name,department,job_title,employee_type,status,start_date,end_date,manager_id,location
+1001,Mette,Nielsen,IT,System Administrator,Employee,Active,2023-03-06,,,Sacramento
+1002,Jordan,Reyes,IT,IT Support Specialist,Employee,Active,2024-08-19,,1001,Sacramento
+1003,Priya,Shah,IT,IT Support Specialist,Contractor,Active,2026-09-01,2026-12-31,1001,Sacramento
+1004,Lars,Andersen,HR,HR Manager,Employee,Active,2022-01-10,,,Horsens
+1005,Megan,Brooks,HR,HR Generalist,Employee,Active,2025-02-03,,1004,Sacramento
+1006,Ashley,Nguyen,HR,HR Generalist,Employee,Active,2025-07-14,,1004,Sacramento
+1007,Sofie,Larsen,Quality,QA Manager,Employee,Active,2021-05-17,,,Sacramento
+1008,David,Kim,Quality,QA Specialist,Employee,Active,2023-11-06,,1007,Sacramento
+1009,Emily,Carter,Quality,QA Specialist,Employee,Active,2024-04-22,,1007,Sacramento
+1010,Freja,Mortensen,Quality,QA Specialist,Employee,Active,2025-10-01,,1007,Sacramento
+1011,Anders,Kristensen,R&D,Research Scientist,Employee,Active,2020-09-14,,,Horsens
+1012,Hannah,Moore,R&D,Research Scientist,Employee,Active,2024-01-08,,1011,Sacramento
+1013,Carlos,Mendoza,R&D,Lab Technician,Employee,Active,2023-06-12,,1011,Sacramento
+1014,Emily,Carter,R&D,Lab Technician,Employee,Active,2026-03-02,,1011,Sacramento
+1015,Tyler,Johnson,R&D,Lab Technician,Employee,Active,2025-04-28,,1011,Sacramento
