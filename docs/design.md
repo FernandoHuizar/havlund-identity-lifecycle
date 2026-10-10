@@ -53,7 +53,7 @@ How each HR field shows up in the other systems.
 | last_name | lastName | sn | surname |
 | job_title | title | title | jobTitle |
 | department | department | department | department |
-| manager_id | managerID | manager | manager |
+| manager_id | managerId | manager | manager |
 | employee_type | userType | employeeType | employeeType |
 | status | user status | enabled or disabled | accountEnabled |
 | end_date | endDate (custom field, added later) | accountExpires | synced from AD |
