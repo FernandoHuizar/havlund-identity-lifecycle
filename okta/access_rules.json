@@ -1,0 +1,27 @@
+{
+  "groups": {
+    "HP-All-Staff": "Everyone at Havlund Pharma",
+    "HP-IT-Support": "IT help desk tools and tickets",
+    "HP-IT-Admins": "Admin rights on IT systems",
+    "HP-HR-Staff": "HR systems and employee records",
+    "HP-QA-Edit": "Create and edit quality records",
+    "HP-QA-Approve": "Approve quality records",
+    "HP-RD-Data": "R&D research data",
+    "HP-Lab-Computers": "Sign in to lab computers",
+    "HP-Contractors": "All contractors. Access ends on their end date"
+  },
+  "role_groups": {
+    "IT Support Specialist": ["HP-All-Staff", "HP-IT-Support"],
+    "System Administrator": ["HP-All-Staff", "HP-IT-Support", "HP-IT-Admins"],
+    "HR Generalist": ["HP-All-Staff", "HP-HR-Staff"],
+    "HR Manager": ["HP-All-Staff", "HP-HR-Staff"],
+    "QA Specialist": ["HP-All-Staff", "HP-QA-Edit"],
+    "QA Manager": ["HP-All-Staff", "HP-QA-Approve"],
+    "Research Scientist": ["HP-All-Staff", "HP-RD-Data", "HP-Lab-Computers"],
+    "Lab Technician": ["HP-All-Staff", "HP-Lab-Computers"]
+  },
+  "contractor_group": "HP-Contractors",
+  "never_together": [
+    ["HP-QA-Edit", "HP-QA-Approve"]
+  ]
+}
