@@ -21,10 +21,10 @@ Fix: Opened a support request with the Azure Account Review team. They found the
 Lesson: Some blocks come from the vendor, not your own setup. Confirm your side is correct first, then use the right support channel instead of working around it.
 
 ## 3. Turned off DPoP on the sync app
-   Problem: Okta turns on DPoP by default for new API service apps. It adds an extra signed proof to every token request, which means a lot more code.
+Problem: Okta turns on DPoP by default for new API service apps. It adds an extra signed proof to every token request, which means a lot more code.
 
-   Cause: It's a newer Okta security default, not something the lab needs to prove the joiner, mover, leaver flow.
+Cause: It's a newer Okta security default, not something the lab needs to prove the joiner, mover, leaver flow.
 
-   Fix: Turned off DPoP on the havlund-hr-sync app. The app still signs in with a private key, not a password.
+Fix: Turned off DPoP on the havlund-hr-sync app. The app still signs in with a private key, not a password.
 
-   Lesson: In a real company I'd leave DPoP on. For this lab I chose a simpler setup and wrote down why.
+Lesson: In a real company I'd leave DPoP on. For this lab I chose a simpler setup and wrote down why.
