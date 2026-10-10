@@ -16,6 +16,6 @@ Problem: Creating a pay-as-you-go subscription failed with "Could not create an 
 
 Cause: Microsoft flagged the account for review on their side. The billing account and payment method were both set up correctly.
 
-Fix: Opened a support request with the Azure Account Review team. Waiting on their reply.
+Fix: Opened a support request with the Azure Account Review team. They found the block came from their purchase monitoring and removed it. Subscription creation worked after that.
 
 Lesson: Some blocks come from the vendor, not your own setup. Confirm your side is correct first, then use the right support channel instead of working around it.

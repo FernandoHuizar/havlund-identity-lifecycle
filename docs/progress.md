@@ -12,7 +12,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Fake HR export (CSV) with 15 employees
 
 ## Waiting
-- Azure subscription is blocked by a Microsoft account review. A support request is open. The domain controller VM gets built once this clears.
+- Azure block removed by Microsoft. Subscription havlund-lab created with a $10 budget.
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
