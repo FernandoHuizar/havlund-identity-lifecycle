@@ -12,6 +12,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Fake HR export (CSV) with 15 employees
 - Azure block removed by Microsoft. Subscription havlund-lab created with a $10 budget.
 - Okta service app havlund-hr-sync created (private key sign-in, 4 scopes, Org Admin role)
+- Okta sign-in script working (scripts/okta_client.py signs in with the private key and lists users)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
