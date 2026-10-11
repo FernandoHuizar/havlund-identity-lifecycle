@@ -15,6 +15,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Okta sign-in script working (scripts/okta_client.py signs in with the private key and lists users)
 - Access rules config (okta/access_rules.json) and 9 HP- groups created in Okta by script (safe to rerun)
 - Joiner in Okta working: hr_to_okta.py created the 7 pilot users with the right groups, matching on employee ID (safe to rerun)
+- Mover in Okta working: promoted David Kim (QA Specialist to QA Manager). Script updated his title, removed HP-QA-Edit first, then added HP-QA-Approve
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
