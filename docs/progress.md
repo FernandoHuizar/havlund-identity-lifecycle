@@ -18,6 +18,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Mover in Okta working: promoted David Kim (QA Specialist to QA Manager). Script updated his title, removed HP-QA-Edit first, then added HP-QA-Approve
 - Leaver in Okta working: terminated Jordan Reyes in HR. Script removed his groups and deactivated his account. Okta System Log shows each step with a time stamp
 - Drift check part 1 working: drift_check.py compares HR with Okta and writes reports/drift_report.csv. Admin account listed as an approved exception
+- Drift check tested: made 3 problems by hand in Okta (SOD conflict, account outside HR, leaver turned back on). Drift check caught all 4 findings, sync fixed the HR-owned ones, deactivated the outside account by hand, drift check came back clean
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -28,7 +29,7 @@ Where the lab stands right now. Updated as each part is finished.
 6. Contractor expiry and rehire, README, demo
 
 ## Next step
-Test the drift check: make 2 to 3 problems in Okta by hand (like an SOD conflict and an orphan account), run drift_check.py to catch them, then fix them.
+Build order step 4: create the Azure VM HP-DC01 (see Planned section), then install Active Directory.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
