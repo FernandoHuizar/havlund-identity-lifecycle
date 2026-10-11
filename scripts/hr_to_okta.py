@@ -5,10 +5,12 @@ What it does: Reads the HR export and keeps Okta in line with it.
 - Joiners: new hires are created with the right username, job info, and groups.
 - Movers: if HR changes someone's job, their Okta profile and groups are updated.
   Old groups are removed first, then new ones added, so no leftover access.
+- Leavers: if HR marks someone as no longer active, all their groups are removed
+  and their account is deactivated. Accounts are never deleted.
 People are always matched on employee ID, never on name.
 
 Inputs: sample-data/hr_export.csv, okta/access_rules.json, .env
-Outputs: prints what it created, updated, or left alone
+Outputs: prints what it created, updated, offboarded, or left alone
 How to run:
   python scripts/hr_to_okta.py --dry-run   (shows what would happen)
   python scripts/hr_to_okta.py             (makes the changes)
@@ -97,6 +99,15 @@ def profile_from_hr(record):
     return {field: value for field, value in profile.items() if value}
 
 
+def current_managed_groups(user_id, managed_groups, headers):
+    """The HP- groups a user is in right now."""
+    return {
+        g["profile"]["name"]
+        for g in okta_request("GET", f"/api/v1/users/{user_id}/groups", headers)
+        if g["profile"]["name"] in managed_groups
+    }
+
+
 def create_user(record, login, groups, group_ids, headers):
     """Joiner: create the account, turn it on, and add the groups in one call."""
     profile = profile_from_hr(record)
@@ -121,11 +132,7 @@ def update_user(okta_user, record, groups, group_ids, managed_groups, headers):
         changes.append(f"{field}: {okta_user['profile'].get(field)} -> {value}")
 
     # HP- groups they have now vs. what their job should get
-    current = {
-        g["profile"]["name"]
-        for g in okta_request("GET", f"/api/v1/users/{user_id}/groups", headers)
-        if g["profile"]["name"] in managed_groups
-    }
+    current = current_managed_groups(user_id, managed_groups, headers)
     to_remove = current - set(groups)
     to_add = set(groups) - current
     changes += [f"remove {name}" for name in sorted(to_remove)]
@@ -142,6 +149,23 @@ def update_user(okta_user, record, groups, group_ids, managed_groups, headers):
         okta_request("DELETE", f"/api/v1/groups/{group_ids[name]}/users/{user_id}", headers)
     for name in to_add:
         okta_request("PUT", f"/api/v1/groups/{group_ids[name]}/users/{user_id}", headers)
+    return changes
+
+
+def offboard_user(okta_user, group_ids, managed_groups, headers):
+    """Leaver: remove every HP- group, then deactivate the account.
+    Deactivating ends all sign-ins and sessions. The account is kept, not
+    deleted, so the audit trail stays and the username is never reused."""
+    user_id = okta_user["id"]
+    current = sorted(current_managed_groups(user_id, managed_groups, headers))
+    changes = [f"remove {name}" for name in current] + ["deactivate account"]
+
+    if DRY_RUN:
+        return changes
+
+    for name in current:
+        okta_request("DELETE", f"/api/v1/groups/{group_ids[name]}/users/{user_id}", headers)
+    okta_request("POST", f"/api/v1/users/{user_id}/lifecycle/deactivate", headers)
     return changes
 
 
@@ -167,17 +191,38 @@ def main():
         for g in okta_request("GET", "/api/v1/groups", headers, {"limit": 200})
     }
 
-    pilot = [r for r in records if r["department"] in PILOT_DEPARTMENTS and r["status"] == "Active"]
-    created = updated = unchanged = 0
+    pilot = [r for r in records if r["department"] in PILOT_DEPARTMENTS]
+    created = updated = offboarded = unchanged = review = 0
 
     for record in sorted(pilot, key=lambda r: int(r["employee_id"])):
         employee_id = record["employee_id"]
+        okta_user = by_employee_id.get(employee_id)
+
+        # Leaver: HR says this person no longer works here
+        if record["status"] != "Active":
+            if okta_user is None or okta_user["status"] == "DEPROVISIONED":
+                print(f"No changes: {employee_id} already off ({record['status']} in HR)")
+                unchanged += 1
+                continue
+            login = okta_user["profile"]["login"]
+            changes = offboard_user(okta_user, group_ids, managed_groups, headers)
+            end_date = record["end_date"] or "none"
+            print(f"{'Would offboard' if DRY_RUN else 'Offboarded'}: {employee_id} {login} "
+                  f"(HR status {record['status']}, end date {end_date})")
+            for change in changes:
+                print(f"      {change}")
+            offboarded += 1
+            continue
+
         groups = groups_for(record, rules)
 
         # Already in Okta (matched on employee ID): check for mover changes
-        if employee_id in by_employee_id:
-            okta_user = by_employee_id[employee_id]
+        if okta_user is not None:
             login = okta_user["profile"]["login"]
+            if okta_user["status"] == "DEPROVISIONED":
+                print(f"Needs review: {employee_id} {login} is Active in HR but deactivated in Okta (possible rehire)")
+                review += 1
+                continue
             changes = update_user(okta_user, record, groups, group_ids, managed_groups, headers)
             if changes:
                 print(f"{'Would update' if DRY_RUN else 'Updated'}: {employee_id} {login}")
@@ -197,7 +242,8 @@ def main():
         print(f"{'Would create' if DRY_RUN else 'Created'}: {employee_id} {login} -> {', '.join(groups)}")
         created += 1
 
-    summary = f"created {created}, updated {updated}, no changes {unchanged}"
+    summary = (f"created {created}, updated {updated}, offboarded {offboarded}, "
+               f"no changes {unchanged}, needs review {review}")
     if DRY_RUN:
         print(f"\nDry run: would have {summary}. Nothing was changed.")
     else:
