@@ -19,6 +19,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Leaver in Okta working: terminated Jordan Reyes in HR. Script removed his groups and deactivated his account. Okta System Log shows each step with a time stamp
 - Drift check part 1 working: drift_check.py compares HR with Okta and writes reports/drift_report.csv. Admin account listed as an approved exception
 - Drift check tested: made 3 problems by hand in Okta (SOD conflict, account outside HR, leaver turned back on). Drift check caught all 4 findings, sync fixed the HR-owned ones, deactivated the outside account by hand, drift check came back clean
+- Azure VM HP-DC01 created in rg-havlund-lab (smalldisk Windows Server 2022, Standard_B2ls_v2, Standard SSD, NSG with no inbound rules yet, auto-shutdown 1 AM)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -29,7 +30,7 @@ Where the lab stands right now. Updated as each part is finished.
 6. Contractor expiry and rehire, README, demo
 
 ## Next step
-Build order step 4: create the Azure VM HP-DC01 (see Planned section), then install Active Directory.
+Add an NSG rule on HP-DC01-nsg allowing RDP (3389) from my home IP only, set the VM's private IP (172.16.0.4) to static, RDP in as hpadmin, then install AD DS and create corp.havlundpharma.com.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.

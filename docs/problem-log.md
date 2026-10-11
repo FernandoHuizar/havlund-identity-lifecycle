@@ -28,3 +28,12 @@ Cause: It's a newer Okta security default, not something the lab needs to prove 
 Fix: Turned off DPoP on the havlund-hr-sync app. The app still signs in with a private key, not a password.
 
 Lesson: In a real company I'd leave DPoP on. For this lab I chose a simpler setup and wrote down why.
+
+## 4. VM create failed on CPU quota
+Problem: Creating the VM failed with "QuotaExceeded" for the Standard Bsv2 family in West US 2.
+
+Cause: New pay-as-you-go subscriptions can start with a CPU quota of 0 for some VM families.
+
+Fix: Requested a quota increase to 4 vCPUs in Quotas > Compute. It was approved right away. The create page kept showing the old error until I clicked between tabs to make it validate again.
+
+Lesson: Check quotas for the VM size and region before building. The error's tracking ID shows whether you're looking at a new result or an old one.
