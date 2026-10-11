@@ -1,1 +1,5 @@
 check,severity,employee_id,login,detail
+LEAVER_STILL_ACTIVE,High,1002,jordan.reyes@havlundpharma.com,HR status is Terminated (end date 2026-10-10) but the account is still on.
+SOD_CONFLICT,High,1009,emily.carter@havlundpharma.com,In both HP-QA-Edit and HP-QA-Approve.
+EXTRA_ACCESS,Medium,1009,emily.carter@havlundpharma.com,"In HP-QA-Approve, which a QA Specialist should not have."
+NO_EMPLOYEE_ID,Low,,alex.vendor@havlundpharma.com,Account is on but has no employee ID (Okta ID 00u18lrog0eVkx98u698). Confirm it is an approved admin or service account.
