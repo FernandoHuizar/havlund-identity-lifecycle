@@ -1,12 +1,14 @@
 """
 hr_to_okta.py
 
-What it does: Reads the HR export and creates new hires (joiners) in Okta
-with the right username, job info, and groups. People already in Okta are
-matched by employee ID and left alone for now (movers and leavers come next).
+What it does: Reads the HR export and keeps Okta in line with it.
+- Joiners: new hires are created with the right username, job info, and groups.
+- Movers: if HR changes someone's job, their Okta profile and groups are updated.
+  Old groups are removed first, then new ones added, so no leftover access.
+People are always matched on employee ID, never on name.
 
 Inputs: sample-data/hr_export.csv, okta/access_rules.json, .env
-Outputs: prints what it created or skipped
+Outputs: prints what it created, updated, or left alone
 How to run:
   python scripts/hr_to_okta.py --dry-run   (shows what would happen)
   python scripts/hr_to_okta.py             (makes the changes)
@@ -37,18 +39,25 @@ def load_hr_records():
         return list(csv.DictReader(hr_file))
 
 
-def okta_get(path, headers, params=None):
-    """Read something from Okta (GET). Stops with Okta's error message if it fails."""
-    response = requests.get(f"{ORG_URL}{path}", headers=headers, params=params, timeout=30)
+def okta_request(method, path, headers, params=None, body=None):
+    """Send one request to Okta. Stops with Okta's error message if it fails."""
+    response = requests.request(
+        method,
+        f"{ORG_URL}{path}",
+        headers=headers,
+        params=params,
+        json=body,
+        timeout=30,
+    )
     if not response.ok:
-        raise SystemExit(f"Okta request failed ({response.status_code}): {response.text}")
-    return response.json()
+        raise SystemExit(f"Okta {method} {path} failed ({response.status_code}): {response.text}")
+    return response.json() if response.content else None
 
 
 def get_okta_users(headers):
     """All Okta users, including deactivated ones, so old usernames stay retired."""
-    users = okta_get("/api/v1/users", headers, {"limit": 200})
-    users += okta_get("/api/v1/users", headers, {"limit": 200, "search": 'status eq "DEPROVISIONED"'})
+    users = okta_request("GET", "/api/v1/users", headers, {"limit": 200})
+    users += okta_request("GET", "/api/v1/users", headers, {"limit": 200, "search": 'status eq "DEPROVISIONED"'})
     return users
 
 
@@ -73,9 +82,73 @@ def groups_for(record, rules):
     return groups
 
 
+def profile_from_hr(record):
+    """The Okta profile fields HR owns. Username and email are left out on
+    purpose: they are set once when the account is made and never change."""
+    profile = {
+        "firstName": record["first_name"],
+        "lastName": record["last_name"],
+        "employeeNumber": record["employee_id"],
+        "title": record["job_title"],
+        "department": record["department"],
+        "userType": record["employee_type"],
+        "managerId": record["manager_id"],
+    }
+    return {field: value for field, value in profile.items() if value}
+
+
+def create_user(record, login, groups, group_ids, headers):
+    """Joiner: create the account, turn it on, and add the groups in one call."""
+    profile = profile_from_hr(record)
+    profile["login"] = login
+    profile["email"] = login
+    body = {"profile": profile, "groupIds": [group_ids[name] for name in groups]}
+    okta_request("POST", "/api/v1/users", headers, params={"activate": "true"}, body=body)
+
+
+def update_user(okta_user, record, groups, group_ids, managed_groups, headers):
+    """Mover: bring an existing user in line with HR. Returns the list of changes."""
+    user_id = okta_user["id"]
+    changes = []
+
+    # Job info that is different from HR
+    wanted = profile_from_hr(record)
+    profile_changes = {
+        field: value for field, value in wanted.items()
+        if okta_user["profile"].get(field) != value
+    }
+    for field, value in profile_changes.items():
+        changes.append(f"{field}: {okta_user['profile'].get(field)} -> {value}")
+
+    # HP- groups they have now vs. what their job should get
+    current = {
+        g["profile"]["name"]
+        for g in okta_request("GET", f"/api/v1/users/{user_id}/groups", headers)
+        if g["profile"]["name"] in managed_groups
+    }
+    to_remove = current - set(groups)
+    to_add = set(groups) - current
+    changes += [f"remove {name}" for name in sorted(to_remove)]
+    changes += [f"add {name}" for name in sorted(to_add)]
+
+    if DRY_RUN or not changes:
+        return changes
+
+    if profile_changes:
+        # POST to a user = partial update (only the fields we send change)
+        okta_request("POST", f"/api/v1/users/{user_id}", headers, body={"profile": profile_changes})
+    # Remove old access first, so nobody holds old and new groups at the same time
+    for name in to_remove:
+        okta_request("DELETE", f"/api/v1/groups/{group_ids[name]}/users/{user_id}", headers)
+    for name in to_add:
+        okta_request("PUT", f"/api/v1/groups/{group_ids[name]}/users/{user_id}", headers)
+    return changes
+
+
 def main():
     records = load_hr_records()
     rules = json.loads(RULES_FILE.read_text(encoding="utf-8"))
+    managed_groups = set(rules["groups"])
     headers = {
         "Authorization": f"Bearer {get_access_token()}",
         "Accept": "application/json",
@@ -91,64 +164,44 @@ def main():
     taken = {u["profile"]["login"].lower() for u in okta_users}
     group_ids = {
         g["profile"]["name"]: g["id"]
-        for g in okta_get("/api/v1/groups", headers, {"limit": 200})
+        for g in okta_request("GET", "/api/v1/groups", headers, {"limit": 200})
     }
 
     pilot = [r for r in records if r["department"] in PILOT_DEPARTMENTS and r["status"] == "Active"]
-    created = skipped = 0
+    created = updated = unchanged = 0
 
     for record in sorted(pilot, key=lambda r: int(r["employee_id"])):
         employee_id = record["employee_id"]
-
-        # Match on employee ID, never on name
-        if employee_id in by_employee_id:
-            login = by_employee_id[employee_id]["profile"]["login"]
-            print(f"Skipped (already in Okta): {employee_id} {login}")
-            skipped += 1
-            continue
-
-        login = make_username(record, taken)
-        taken.add(login)
         groups = groups_for(record, rules)
 
-        if DRY_RUN:
-            print(f"Would create: {employee_id} {login} -> {', '.join(groups)}")
-            created += 1
+        # Already in Okta (matched on employee ID): check for mover changes
+        if employee_id in by_employee_id:
+            okta_user = by_employee_id[employee_id]
+            login = okta_user["profile"]["login"]
+            changes = update_user(okta_user, record, groups, group_ids, managed_groups, headers)
+            if changes:
+                print(f"{'Would update' if DRY_RUN else 'Updated'}: {employee_id} {login}")
+                for change in changes:
+                    print(f"      {change}")
+                updated += 1
+            else:
+                print(f"No changes: {employee_id} {login}")
+                unchanged += 1
             continue
 
-        profile = {
-            "firstName": record["first_name"],
-            "lastName": record["last_name"],
-            "email": login,
-            "login": login,
-            "employeeNumber": employee_id,
-            "title": record["job_title"],
-            "department": record["department"],
-            "userType": record["employee_type"],
-            "managerId": record["manager_id"],
-        }
-        new_user = {
-            "profile": {field: value for field, value in profile.items() if value},
-            "groupIds": [group_ids[name] for name in groups],
-        }
-
-        # Create the user and add them to their groups in one call
-        response = requests.post(
-            f"{ORG_URL}/api/v1/users",
-            headers=headers,
-            params={"activate": "true"},
-            json=new_user,
-            timeout=30,
-        )
-        if not response.ok:
-            raise SystemExit(f"Failed to create {login} ({response.status_code}): {response.text}")
-        print(f"Created: {employee_id} {login} -> {', '.join(groups)}")
+        # Not in Okta yet: joiner
+        login = make_username(record, taken)
+        taken.add(login)
+        if not DRY_RUN:
+            create_user(record, login, groups, group_ids, headers)
+        print(f"{'Would create' if DRY_RUN else 'Created'}: {employee_id} {login} -> {', '.join(groups)}")
         created += 1
 
+    summary = f"created {created}, updated {updated}, no changes {unchanged}"
     if DRY_RUN:
-        print(f"\nDry run: would create {created}, skip {skipped}. Nothing was changed.")
+        print(f"\nDry run: would have {summary}. Nothing was changed.")
     else:
-        print(f"\nCreated {created}, skipped {skipped}.")
+        print(f"\nDone: {summary}.")
 
 
 if __name__ == "__main__":
