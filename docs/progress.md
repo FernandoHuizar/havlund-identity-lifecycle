@@ -17,6 +17,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Joiner in Okta working: hr_to_okta.py created the 7 pilot users with the right groups, matching on employee ID (safe to rerun)
 - Mover in Okta working: promoted David Kim (QA Specialist to QA Manager). Script updated his title, removed HP-QA-Edit first, then added HP-QA-Approve
 - Leaver in Okta working: terminated Jordan Reyes in HR. Script removed his groups and deactivated his account. Okta System Log shows each step with a time stamp
+- Drift check part 1 working: drift_check.py compares HR with Okta and writes reports/drift_report.csv. Admin account listed as an approved exception
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -26,8 +27,8 @@ Where the lab stands right now. Updated as each part is finished.
 5. Add AD and Entra ID to the joiner, mover, leaver flows and the drift check
 6. Contractor expiry and rehire, README, demo
 
-# Next step
-Drift check part 1: write scripts/drift_check.py to compare the HR export with Okta and report anything that doesn't match (missing accounts, still active after leaving, wrong groups, anyone in both HP-QA-Edit and HP-QA-Approve, Okta accounts with no HR record).
+## Next step
+Test the drift check: make 2 to 3 problems in Okta by hand (like an SOD conflict and an orphan account), run drift_check.py to catch them, then fix them.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.

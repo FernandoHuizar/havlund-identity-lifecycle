@@ -23,5 +23,8 @@
   "contractor_group": "HP-Contractors",
   "never_together": [
     ["HP-QA-Edit", "HP-QA-Approve"]
-  ]
+  ],
+  "approved_exceptions": {
+    "00u15uz5cl4rmk1K5698": "Lab Okta admin account. Not an HR employee. Approved by Fernando Huizar on 2026-10-11."
+  }
 }
