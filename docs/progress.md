@@ -25,3 +25,18 @@ Where the lab stands right now. Updated as each part is finished.
 4. Azure VM, Active Directory, Entra Connect
 5. Add AD and Entra ID to the joiner, mover, leaver flows and the drift check
 6. Contractor expiry and rehire, README, demo
+
+# Next step
+Drift check part 1: write scripts/drift_check.py to compare the HR export with Okta and report anything that doesn't match (missing accounts, still active after leaving, wrong groups, anyone in both HP-QA-Edit and HP-QA-Approve, Okta accounts with no HR record).
+
+## Planned: Azure VM (build order step 4)
+- Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
+- VM HP-DC01 in resource group rg-havlund-lab, West US 2, Windows Server 2022 Datacenter Gen2, Standard_B2s, admin user hpadmin.
+- No open inbound ports except RDP from my home IP only. Auto-shutdown every night. No Hybrid Benefit. Check the price before clicking Create.
+- The disk costs money even when the VM is off, so only build it when step 4 starts. Delete the whole resource group when the lab is done.
+
+## Later
+- Add a custom endDate field in Okta for contractor expiry.
+- Handle rehires (the sync script flags them as "Needs review" for now).
+- Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
+- Change the havlund-lab budget alert email to my Gmail.
