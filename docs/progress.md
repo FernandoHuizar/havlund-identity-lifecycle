@@ -29,6 +29,15 @@ Where the lab stands right now. Updated as each part is finished.
 5. Add AD and Entra ID to the joiner, mover, leaver flows and the drift check
 6. Contractor expiry and rehire, README, demo
 
+## Roadmap (detail)
+4. AD on HP-DC01: NSG rule (RDP from home IP only), static private IP, RDP in, install AD DS (corp.havlundpharma.com), point VNet DNS at the DC, add havlundpharma.com UPN suffix, create OUs and HP- groups
+5. Okta to AD: install Okta AD agent, turn on Create Users with an OU per department, push HP- groups, test joiner/mover/leaver into AD (leavers disabled and moved to Disabled Users)
+6. AD to Entra: install Entra Connect Sync or Cloud Sync, sync only the Users OUs, confirm users show as synced from on-premises
+7. Drift check part 2: add AD and Entra to drift_check.py
+8. Contractor expiry (endDate in Okta, accountExpires in AD) and rehire handling
+9. README with Mermaid diagram, demo, cost cleanup (delete rg-havlund-lab when done)
+10. Resume bullets and interview walkthrough
+
 ## Next step
 Add an NSG rule on HP-DC01-nsg allowing RDP (3389) from my home IP only, set the VM's private IP (172.16.0.4) to static, RDP in as hpadmin, then install AD DS and create corp.havlundpharma.com.
 
@@ -43,3 +52,4 @@ Add an NSG rule on HP-DC01-nsg allowing RDP (3389) from my home IP only, set the
 - Handle rehires (the sync script flags them as "Needs review" for now).
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
 - Change the havlund-lab budget alert email to my Gmail.
+- Portfolio plan: Project 2 = app onboarding in Okta (SAML, OIDC, SCIM, MFA, runbook). Project 3 = not decided yet: either Entra security (Conditional Access, PIM, break-glass accounts, access reviews; needs a paid P2 month) or a third Okta-focused project. Same Havlund Pharma company, separate repos. Finish this project first.
