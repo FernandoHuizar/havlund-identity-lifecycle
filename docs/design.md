@@ -63,12 +63,13 @@ How each HR field shows up in the other systems.
 - If the name is taken, add a number (anna.jensen2).
 
 ## Where users go in AD
-Each department has its own folder (OU) under corp.havlundpharma.com:
-- Users > IT
-- Users > HR
-- Users > Quality
-- Users > R&D
-- Disabled Users (leavers move here)
+Everything goes under one company OU, Havlund, in corp.havlundpharma.com:
+- Havlund > Users > IT
+- Havlund > Users > HR
+- Havlund > Users > Quality
+- Havlund > Users > R&D
+- Havlund > Disabled Users (leavers move here)
+- Havlund > Groups (HP- groups)
 
 ## Note
 Some fields may not pass through every system the way this table shows. Each one gets tested during the build. Anything that doesn't work goes in the problem log with the fix.

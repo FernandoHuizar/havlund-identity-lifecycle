@@ -21,6 +21,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Drift check tested: made 3 problems by hand in Okta (SOD conflict, account outside HR, leaver turned back on). Drift check caught all 4 findings, sync fixed the HR-owned ones, deactivated the outside account by hand, drift check came back clean
 - Azure VM HP-DC01 created in rg-havlund-lab (smalldisk Windows Server 2022, Standard_B2ls_v2, Standard SSD, NSG with no inbound rules yet, auto-shutdown 1 AM)
 - HP-DC01 set up as the first domain controller for corp.havlundpharma.com (NetBIOS name HAVLUND). RDP allowed from my home IP only, private IP 172.16.0.4 set to static
+- VNet DNS pointed at the DC, havlundpharma.com UPN suffix added, OUs created under Havlund (Users by department, Disabled Users, Groups)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -31,8 +32,8 @@ Where the lab stands right now. Updated as each part is finished.
 6. Contractor expiry and rehire, README, demo
 
 ## Roadmap (detail)
-4. AD on HP-DC01: NSG rule (RDP from home IP only), static private IP, RDP in, install AD DS (corp.havlundpharma.com), point VNet DNS at the DC, add havlundpharma.com UPN suffix, create OUs and HP- groups
-5. Okta to AD: install Okta AD agent, turn on Create Users with an OU per department, push HP- groups, test joiner/mover/leaver into AD (leavers disabled and moved to Disabled Users)
+4. AD on HP-DC01: NSG rule (RDP from home IP only), static private IP, RDP in, install AD DS (corp.havlundpharma.com), point VNet DNS at the DC, add havlundpharma.com UPN suffix, create OUs
+5. Okta to AD: install Okta AD agent, turn on Create Users with an OU per department, push HP- groups into the Havlund > Groups OU, test joiner/mover/leaver into AD (leavers disabled and moved to Disabled Users)
 6. AD to Entra: install Entra Connect Sync or Cloud Sync, sync only the Users OUs, confirm users show as synced from on-premises
 7. Drift check part 2: add AD and Entra to drift_check.py
 8. Contractor expiry (endDate in Okta, accountExpires in AD) and rehire handling
@@ -40,7 +41,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Point the VNet DNS at the DC (172.16.0.4), add the havlundpharma.com UPN suffix, then create the OUs and HP- groups.
+Install the Okta AD agent on HP-DC01 and connect it to corp.havlundpharma.com.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
