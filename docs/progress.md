@@ -20,6 +20,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Drift check part 1 working: drift_check.py compares HR with Okta and writes reports/drift_report.csv. Admin account listed as an approved exception
 - Drift check tested: made 3 problems by hand in Okta (SOD conflict, account outside HR, leaver turned back on). Drift check caught all 4 findings, sync fixed the HR-owned ones, deactivated the outside account by hand, drift check came back clean
 - Azure VM HP-DC01 created in rg-havlund-lab (smalldisk Windows Server 2022, Standard_B2ls_v2, Standard SSD, NSG with no inbound rules yet, auto-shutdown 1 AM)
+- HP-DC01 set up as the first domain controller for corp.havlundpharma.com (NetBIOS name HAVLUND). RDP allowed from my home IP only, private IP 172.16.0.4 set to static
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -39,11 +40,11 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Add an NSG rule on HP-DC01-nsg allowing RDP (3389) from my home IP only, set the VM's private IP (172.16.0.4) to static, RDP in as hpadmin, then install AD DS and create corp.havlundpharma.com.
+Point the VNet DNS at the DC (172.16.0.4), add the havlundpharma.com UPN suffix, then create the OUs and HP- groups.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
-- VM HP-DC01 in resource group rg-havlund-lab, West US 2, Windows Server 2022 Datacenter Gen2, Standard_B2s, admin user hpadmin.
+- VM HP-DC01 in resource group rg-havlund-lab, West US 2, Windows Server 2022 Datacenter Gen2, Standard_B2ls_v2, admin user hpadmin.
 - No open inbound ports except RDP from my home IP only. Auto-shutdown every night. No Hybrid Benefit. Check the price before clicking Create.
 - The disk costs money even when the VM is off, so only build it when step 4 starts. Delete the whole resource group when the lab is done.
 
