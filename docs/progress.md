@@ -22,6 +22,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Azure VM HP-DC01 created in rg-havlund-lab (smalldisk Windows Server 2022, Standard_B2ls_v2, Standard SSD, NSG with no inbound rules yet, auto-shutdown 1 AM)
 - HP-DC01 set up as the first domain controller for corp.havlundpharma.com (NetBIOS name HAVLUND). RDP allowed from my home IP only, private IP 172.16.0.4 set to static
 - VNet DNS pointed at the DC, havlundpharma.com UPN suffix added, OUs created under Havlund (Users by department, Disabled Users, Groups)
+- Okta AD agent installed on HP-DC01 and connected to corp.havlundpharma.com (OktaService account, OU scope limited to Havlund users, disabled users and groups)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -41,7 +42,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Install the Okta AD agent on HP-DC01 and connect it to corp.havlundpharma.com.
+Turn on Okta to AD provisioning (create users in an OU per department), map employeeNumber to employeeID, then push the HP- groups into Havlund > Groups.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
