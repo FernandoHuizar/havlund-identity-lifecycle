@@ -55,3 +55,12 @@ Cause: "Allow Active Directory to source Okta users" was on by default. When the
 Fix: Turned off AD sourcing, set the AD username format to "Okta username", fixed the UPN in AD, then set the Okta usernames back. Changing the AD username alone made Okta treat it as a new account and fail with "object already exists."
 
 Lesson: Decide which system is the source of truth before the first assignment. Test with a small group first. Check the System Log before changing more settings.
+
+## 7. Leavers kept their AD groups
+Problem: After terminating Freja Mortensen, her AD account was disabled but she was still in HP-QA-Edit and HP-All-Staff in AD, and still in the Quality OU.
+
+Cause: The sync script removes groups in Okta and deactivates the user one second later. Okta Group Push only manages users who are still assigned to AD, so the group removals never reached AD. The Okta System Log showed the group removals and the deactivation, but no group push for her. Okta also doesn't move leavers to another OU.
+
+Fix: Wrote ad/leaver_cleanup.ps1. It runs on the DC, finds disabled users in Havlund > Users, removes all their groups, writes the removed groups into the account description, moves the account to Disabled Users and logs each change. It has a dry-run mode.
+
+Lesson: Disabling an account isn't the whole leaver process. Check what the IAM tool actually does in the target system, not what you expect it to do.
