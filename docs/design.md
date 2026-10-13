@@ -71,5 +71,11 @@ Everything goes under one company OU, Havlund, in corp.havlundpharma.com:
 - Havlund > Disabled Users (leavers move here)
 - Havlund > Groups (HP- groups)
 
+## How users get into AD
+- Group rules put people into AD-Users-IT, AD-Users-Quality, AD-Users-HR or AD-Users-RD based on their HR department.
+- Each AD-Users group is assigned to AD with its department OU. These groups only decide the AD account and OU. They don't give access and are never pushed to AD.
+- Okta is the source of truth. AD is not allowed to source Okta profiles.
+- The Okta agent's service account only has rights on the Havlund OU.
+
 ## Note
 Some fields may not pass through every system the way this table shows. Each one gets tested during the build. Anything that doesn't work goes in the problem log with the fix.

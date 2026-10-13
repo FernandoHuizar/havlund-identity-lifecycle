@@ -37,3 +37,21 @@ Cause: New pay-as-you-go subscriptions can start with a CPU quota of 0 for some 
 Fix: Requested a quota increase to 4 vCPUs in Quotas > Compute. It was approved right away. The create page kept showing the old error until I clicked between tabs to make it validate again.
 
 Lesson: Check quotas for the VM size and region before building. The error's tracking ID shows whether you're looking at a new result or an old one.
+
+## 5. Okta couldn't create users in AD
+Problem: Assigning the first group to AD failed with "Access is denied."
+
+Cause: The Okta AD agent runs as the OktaService account, which is a normal domain user. It had no rights to create users in the Havlund OUs.
+
+Fix: Gave OktaService rights only on the Havlund OU with dsacls: create and delete users and groups, and full control over the users and groups inside it. Did not make it a Domain Admin.
+
+Lesson: Service accounts should get only the rights they need, only where they need them.
+
+## 6. AD users got the wrong sign-in name (UPN)
+Problem: The first two users were created in AD as name@corp.havlundpharma.com instead of name@havlundpharma.com.
+
+Cause: "Allow Active Directory to source Okta users" was on by default. When the users were assigned to AD, AD became the source of their Okta profile and Okta rewrote their Okta username to the corp domain. That name then went to AD as the UPN. I found this in the Okta System Log ("Update user profile for Okta - changed login").
+
+Fix: Turned off AD sourcing, set the AD username format to "Okta username", fixed the UPN in AD, then set the Okta usernames back. Changing the AD username alone made Okta treat it as a new account and fail with "object already exists."
+
+Lesson: Decide which system is the source of truth before the first assignment. Test with a small group first. Check the System Log before changing more settings.
