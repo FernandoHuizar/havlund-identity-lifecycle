@@ -12,6 +12,7 @@ How to run (on HP-DC01 as a domain admin):
 Output: prints each change and adds a line per user to C:\HavlundLogs\leaver_cleanup.csv
 #>
 param([switch]$DryRun)
+$ErrorActionPreference = 'Stop'
 
 $usersOU    = "OU=Users,OU=Havlund,DC=corp,DC=havlundpharma,DC=com"
 $disabledOU = "OU=Disabled Users,OU=Havlund,DC=corp,DC=havlundpharma,DC=com"

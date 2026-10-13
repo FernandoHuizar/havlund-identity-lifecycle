@@ -27,6 +27,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Quality joiner into AD working (4 users in Havlund > Users > Quality). All 9 HP- groups pushed from Okta to Havlund > Groups with the right members. Nobody is in both QA groups in AD
 - Mover into AD working: promoted Emily Carter (QA Specialist to QA Manager) in the HR export. The sync script swapped her Okta groups and AD followed on its own: title updated, HP-QA-Edit removed, HP-QA-Approve added
 - Leaver into AD working: terminated Freja Mortensen in the HR export. Okta disabled her AD account, then ad/leaver_cleanup.ps1 removed her AD groups, noted them in her description and moved her to Disabled Users
+- Leaver cleanup tested as a scheduled task under a gMSA. Group removal worked, account move needs one more permission. Task disabled, cleanup runs by hand for now
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -46,7 +47,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Run leaver_cleanup.ps1 as a scheduled task on HP-DC01. Then start roadmap step 6: AD to Entra (Entra Connect Sync or Cloud Sync).
+Start roadmap step 6: AD to Entra. Pick Entra Connect Sync or Cloud Sync, sync only the Havlund Users OUs, and confirm users show as synced from on-premises in Entra.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.

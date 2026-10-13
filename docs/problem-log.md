@@ -64,3 +64,5 @@ Cause: The sync script removes groups in Okta and deactivates the user one secon
 Fix: Wrote ad/leaver_cleanup.ps1. It runs on the DC, finds disabled users in Havlund > Users, removes all their groups, writes the removed groups into the account description, moves the account to Disabled Users and logs each change. It has a dry-run mode.
 
 Lesson: Disabling an account isn't the whole leaver process. Check what the IAM tool actually does in the target system, not what you expect it to do.
+
+Follow-up: Set the cleanup up as a scheduled task under a gMSA (svc-leaver) with rights only on the Havlund OUs. Removing groups and writing the description worked, but the move to Disabled Users failed on a missing permission and the script still said it succeeded. Added $ErrorActionPreference = 'Stop' so errors stop the script, disabled the task, and run the cleanup by hand for now.
