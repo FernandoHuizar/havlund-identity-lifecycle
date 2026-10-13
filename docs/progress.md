@@ -61,3 +61,9 @@ Start roadmap step 6: AD to Entra. Pick Entra Connect Sync or Cloud Sync, sync o
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
 - Change the havlund-lab budget alert email to my Gmail.
 - Portfolio plan: Project 2 = app onboarding in Okta (SAML, OIDC, SCIM, MFA, runbook). Project 3 = not decided yet: either Entra security (Conditional Access, PIM, break-glass accounts, access reviews; needs a paid P2 month) or a third Okta-focused project. Same Havlund Pharma company, separate repos. Finish this project first.
+- Leaver cleanup scheduled task: svc-leaver needs one more right to move accounts to Disabled Users. Task is disabled for now.
+- Map the AD manager field (AD needs the manager's AD path, not their employee ID).
+- Find out why Okta users went from Pending user action to Active when they were assigned to AD.
+- Clear the old "accounts need deprovisioning" tasks in Okta.
+- Delete the test.leaver account from AD after drift check part 2 shows it gets flagged.
+- Turn on LDAPS for the Okta AD agent (skipped in the lab).
