@@ -7,7 +7,7 @@ employee_id,first_name,last_name,department,job_title,employee_type,status,start
 1006,Ashley,Nguyen,HR,HR Generalist,Employee,Active,2025-07-14,,1004,Sacramento
 1007,Sofie,Larsen,Quality,QA Manager,Employee,Active,2021-05-17,,,Sacramento
 1008,David,Kim,Quality,QA Manager,Employee,Active,2023-11-06,,1007,Sacramento
-1009,Emily,Carter,Quality,QA Specialist,Employee,Active,2024-04-22,,1007,Sacramento
+1009,Emily,Carter,Quality,QA Manager,Employee,Active,2024-04-22,,1007,Sacramento
 1010,Freja,Mortensen,Quality,QA Specialist,Employee,Active,2025-10-01,,1007,Sacramento
 1011,Anders,Kristensen,R&D,Research Scientist,Employee,Active,2020-09-14,,,Horsens
 1012,Hannah,Moore,R&D,Research Scientist,Employee,Active,2024-01-08,,1011,Sacramento
