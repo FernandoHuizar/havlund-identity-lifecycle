@@ -24,6 +24,7 @@ Where the lab stands right now. Updated as each part is finished.
 - VNet DNS pointed at the DC, havlundpharma.com UPN suffix added, OUs created under Havlund (Users by department, Disabled Users, Groups)
 - Okta AD agent installed on HP-DC01 and connected to corp.havlundpharma.com (OktaService account, OU scope limited to Havlund users, disabled users and groups)
 - Okta to AD joiner working for IT: Mette Nielsen and Priya Shah created in Havlund > Users > IT with the right UPN, employee ID, title, department and employee type
+- Quality joiner into AD working (4 users in Havlund > Users > Quality). All 9 HP- groups pushed from Okta to Havlund > Groups with the right members. Nobody is in both QA groups in AD
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -43,7 +44,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Assign AD-Users-Quality to AD with the Quality OU and check the 4 users. Then push the HP- groups into Havlund > Groups.
+Test mover and leaver into AD: change a job in the HR export, run hr_to_okta.py, and check that AD title and groups follow. Then terminate someone and check the AD account is disabled (and whether it moves to Disabled Users).
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
