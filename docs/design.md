@@ -77,5 +77,13 @@ Everything goes under one company OU, Havlund, in corp.havlundpharma.com:
 - Okta is the source of truth. AD is not allowed to source Okta profiles.
 - The Okta agent's service account only has rights on the Havlund OU.
 
+## How users get into Entra ID
+- Entra Cloud Sync copies users from AD to Entra ID. A small agent on the DC does the work. The settings live in the Entra admin center.
+- Why Cloud Sync and not Connect Sync: it's Microsoft's recommended path for most companies, the agent is light, and it covers what Havlund needs. Connect Sync still makes sense for very large directories or custom sync rules.
+- Scope: Havlund > Users (IT, HR, Quality, R&D) and Havlund > Disabled Users.
+- Leavers: Disabled Users is in scope on purpose. A leaver's Entra account is disabled, not deleted, so the audit trail stays. Deleting an account should be a separate, approved step after a retention period.
+- Source of truth: once synced, AD owns these users. Changes start in HR, go through Okta to AD, then to Entra.
+- Accounts: the agent runs as a gMSA, so AD manages its password. It signs in to Entra with a cloud-only account that only has the Hybrid Identity Administrator role.
+
 ## Note
 Some fields may not pass through every system the way this table shows. Each one gets tested during the build. Anything that doesn't work goes in the problem log with the fix.

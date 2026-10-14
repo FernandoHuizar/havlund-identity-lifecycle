@@ -28,6 +28,10 @@ Where the lab stands right now. Updated as each part is finished.
 - Mover into AD working: promoted Emily Carter (QA Specialist to QA Manager) in the HR export. The sync script swapped her Okta groups and AD followed on its own: title updated, HP-QA-Edit removed, HP-QA-Approve added
 - Leaver into AD working: terminated Freja Mortensen in the HR export. Okta disabled her AD account, then ad/leaver_cleanup.ps1 removed her AD groups, noted them in her description and moved her to Disabled Users
 - Leaver cleanup tested as a scheduled task under a gMSA. Group removal worked, account move needs one more permission. Task disabled, cleanup runs by hand for now
+- Picked Entra Cloud Sync over Connect Sync (Microsoft's recommended path, light agent that fits the 4 GB lab server, covers OU scope, password hash sync and field mapping)
+- Created a cloud-only sync admin (hp-sync-admin) on the onmicrosoft.com domain with only the Hybrid Identity Administrator role and MFA
+- Installed the Cloud Sync agent on HP-DC01. It runs as a gMSA (provAgentgMSA) that the installer created
+- Decided to sync Disabled Users too, so leavers are disabled in Entra instead of deleted
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -40,14 +44,14 @@ Where the lab stands right now. Updated as each part is finished.
 ## Roadmap (detail)
 4. AD on HP-DC01: NSG rule (RDP from home IP only), static private IP, RDP in, install AD DS (corp.havlundpharma.com), point VNet DNS at the DC, add havlundpharma.com UPN suffix, create OUs
 5. Okta to AD: install Okta AD agent, turn on Create Users with an OU per department, push HP- groups into the Havlund > Groups OU, test joiner/mover/leaver into AD (leavers disabled and moved to Disabled Users)
-6. AD to Entra: install Entra Connect Sync or Cloud Sync, sync only the Users OUs, confirm users show as synced from on-premises
+6. AD to Entra: Entra Cloud Sync, sync the 4 department OUs and Disabled Users, check field mapping, confirm users show as synced from on-premises
 7. Drift check part 2: add AD and Entra to drift_check.py
 8. Contractor expiry (endDate in Okta, accountExpires in AD) and rehire handling
 9. README with Mermaid diagram, demo, cost cleanup (delete rg-havlund-lab when done)
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Start roadmap step 6: AD to Entra. Pick Entra Connect Sync or Cloud Sync, sync only the Havlund Users OUs, and confirm users show as synced from on-premises in Entra.
+Create the Cloud Sync configuration in Entra: scope it to the 4 department OUs and Disabled Users, check the field mapping, then confirm users show as synced from on-premises.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.

@@ -66,3 +66,12 @@ Fix: Wrote ad/leaver_cleanup.ps1. It runs on the DC, finds disabled users in Hav
 Lesson: Disabling an account isn't the whole leaver process. Check what the IAM tool actually does in the target system, not what you expect it to do.
 
 Follow-up: Set the cleanup up as a scheduled task under a gMSA (svc-leaver) with rights only on the Havlund OUs. Removing groups and writing the description worked, but the move to Disabled Users failed on a missing permission and the script still said it succeeded. Added $ErrorActionPreference = 'Stop' so errors stop the script, disabled the task, and run the cleanup by hand for now.
+
+## 8. Sync agent couldn't sign in to Entra
+Problem: The Cloud Sync setup wizard couldn't load the Microsoft sign-in page. A pop-up said the content was blocked by Internet Explorer Enhanced Security Configuration.
+
+Cause: Windows Server turns this setting on for admins by default. It blocks most websites in the server's built-in browser, including the sign-in page the wizard uses.
+
+Fix: Turned it off for admins in Server Manager, reopened the wizard (it kept the old setting until restarted), signed in, then turned it back on.
+
+Lesson: Server safety settings can block setup tools. Turn them off only for the task, then turn them back on.
