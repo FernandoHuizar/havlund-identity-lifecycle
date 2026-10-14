@@ -17,3 +17,4 @@ Shortcuts I took in this lab and what a real company would do instead.
 | Sync failure alerts go to my own email | A shared IAM team mailbox or ticket queue |
 | No MFA or sign-in rules for users in Okta or Entra | MFA required for everyone (covered in my next project) |
 | The DC shuts down every night to save money, which pauses sync | Sync servers stay on, with 2 or more agents so sync keeps running if one goes down |
+| Cloud Sync runs every 20 minutes | Same, so urgent leavers are also disabled in Entra directly and their sessions revoked right away |

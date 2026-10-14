@@ -38,6 +38,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Drift check part 2 working: drift_check.py now checks Okta, AD and Entra against HR with the same rules, plus a new AD check for leavers left in a department OU. Entra is read with a read-only app (havlund-drift-check, certificate sign-in, User.Read.All and GroupMember.Read.All). AD is read from an export made on the DC (ad/export_ad_state.ps1). First run: 3 findings, test.leaver in AD and Entra and alex.vendor in Okta (no employee ID)
 - Handled the drift findings: deleted test.leaver in AD (Entra moved it to Deleted users after sync) and the alex.vendor test account in Okta. Both were test accounts with no HR record or owner
 - Found sync quarantined after the nightly VM shutdown (problem 9). Restarted it and the drift check came back clean across Okta, AD and Entra
+- Tested drift check part 2 on purpose: changed AD by hand (David Kim added to HP-QA-Edit, Freja Mortensen turned back on, Sofie Larsen's title changed). The check found all 8 findings, each in both AD and Entra, and Okta stayed clean. Fixed AD to match HR. New sample report saved
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -57,7 +58,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Test drift check part 2 with problems made on purpose in AD and Entra (for example an extra group, a leaver turned back on), and save a new sample report. Then roadmap step 8: contractor expiry and rehires.
+Roadmap step 8: contractor expiry and rehires. Priya Shah's contract ends 2026-12-31. Her account must be disabled on that date, because AD account expiry doesn't reach Entra.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
