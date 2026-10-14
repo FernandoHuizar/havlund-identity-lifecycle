@@ -16,3 +16,4 @@ Shortcuts I took in this lab and what a real company would do instead.
 | Access exceptions are an entry in a JSON file | A ticket with an approver, a reason and an end date |
 | Sync failure alerts go to my own email | A shared IAM team mailbox or ticket queue |
 | No MFA or sign-in rules for users in Okta or Entra | MFA required for everyone (covered in my next project) |
+| The DC shuts down every night to save money, which pauses sync | Sync servers stay on, with 2 or more agents so sync keeps running if one goes down |

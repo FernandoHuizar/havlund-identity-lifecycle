@@ -36,6 +36,8 @@ Where the lab stands right now. Updated as each part is finished.
 - Tested before turning sync on (provision on demand): Mette Nielsen (joiner) created with the right employee ID, title and department. Freja Mortensen (leaver) created disabled, with her removed groups in the description. hpadmin blocked by scope
 - AD to Entra working: 7 users synced (5 enabled, 2 disabled leavers) and all 9 HP- groups. HP-QA-Approve has the 3 QA Managers and HP-QA-Edit is empty, so no SOD conflict in Entra. Admin and service accounts stayed out
 - Drift check part 2 working: drift_check.py now checks Okta, AD and Entra against HR with the same rules, plus a new AD check for leavers left in a department OU. Entra is read with a read-only app (havlund-drift-check, certificate sign-in, User.Read.All and GroupMember.Read.All). AD is read from an export made on the DC (ad/export_ad_state.ps1). First run: 3 findings, test.leaver in AD and Entra and alex.vendor in Okta (no employee ID)
+- Handled the drift findings: deleted test.leaver in AD (Entra moved it to Deleted users after sync) and the alex.vendor test account in Okta. Both were test accounts with no HR record or owner
+- Found sync quarantined after the nightly VM shutdown (problem 9). Restarted it and the drift check came back clean across Okta, AD and Entra
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -55,7 +57,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Decide what to do with the 3 drift findings (test.leaver, alex.vendor), then test drift check part 2 with problems made on purpose in AD and Entra. Then roadmap step 8: contractor expiry and rehires.
+Test drift check part 2 with problems made on purpose in AD and Entra (for example an extra group, a leaver turned back on), and save a new sample report. Then roadmap step 8: contractor expiry and rehires.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
@@ -73,10 +75,10 @@ Decide what to do with the 3 drift findings (test.leaver, alex.vendor), then tes
 - Map the AD manager field (AD needs the manager's AD path, not their employee ID).
 - Find out why Okta users went from Pending user action to Active when they were assigned to AD.
 - Find out why Okta made 107 "accounts need deprovisioning" tasks before clearing them.
-- Delete the test.leaver account from AD after drift check part 2 shows it gets flagged.
 - Turn on LDAPS for the Okta AD agent (skipped in the lab).
 - Test the duplicate-name rule: the second Emily Carter (1014, R&D) is outside the pilot, so emily.carter2 was never made.
 - Have hr_to_okta.py save a run log (CSV of every change), like leaver_cleanup.ps1 does.
 - Add a simple access review report: each manager's people and their groups, for sign-off.
 - Use one time zone (UTC) for dates in logs and account notes. Freja's HR end date is 2026-10-12 but her AD note says disabled 2026-10-13 because the server runs on UTC.
 - Security defaults are off in Entra, so synced users can sign in to Microsoft 365 with only a password. Fix with sign-in security (Conditional Access).
+- Check the Cloud Sync status at the start of each lab session. The nightly VM shutdown pauses it.

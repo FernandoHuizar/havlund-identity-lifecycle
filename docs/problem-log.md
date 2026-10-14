@@ -75,3 +75,12 @@ Cause: Windows Server turns this setting on for admins by default. It blocks mos
 Fix: Turned it off for admins in Server Manager, reopened the wizard (it kept the old setting until restarted), signed in, then turned it back on.
 
 Lesson: Server safety settings can block setup tools. Turn them off only for the task, then turn them back on.
+
+## 9. Sync stopped overnight and a deleted account stayed in Entra
+Problem: After deleting test.leaver in AD, the drift check still found it in Entra. Entra showed the sync as "Provisioning quarantined" with the error HybridIdentityServiceNoActiveAgents. Nothing had synced for about 20 hours.
+
+Cause: The lab DC shuts down at 1 AM to save money. With the server off, Entra couldn't reach the sync agent and paused sync. It stayed paused after the server came back on.
+
+Fix: Checked the agent service on the DC (running), then clicked Restart provisioning in Entra. The status went back to Healthy, test.leaver moved to Deleted users, and the drift check came back clean.
+
+Lesson: When sync stops, leavers keep their cloud access. The failure alert email fired overnight and the drift check caught the gap. Check that sync is healthy, don't assume it's running.
