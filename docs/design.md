@@ -56,7 +56,7 @@ How each HR field shows up in the other systems.
 | manager_id | managerId | manager | manager |
 | employee_type | userType | employeeType | employeeType |
 | status | user status | enabled or disabled | accountEnabled |
-| end_date | endDate (custom field, added later) | accountExpires | synced from AD |
+| end_date | endDate (custom field, added later) | accountExpires | not synced (account must be disabled on the end date instead) |
 
 ## Username rule
 - Login and email: first.last@havlundpharma.com, all lowercase.
@@ -80,10 +80,13 @@ Everything goes under one company OU, Havlund, in corp.havlundpharma.com:
 ## How users get into Entra ID
 - Entra Cloud Sync copies users from AD to Entra ID. A small agent on the DC does the work. The settings live in the Entra admin center.
 - Why Cloud Sync and not Connect Sync: it's Microsoft's recommended path for most companies, the agent is light, and it covers what Havlund needs. Connect Sync still makes sense for very large directories or custom sync rules.
-- Scope: Havlund > Users (IT, HR, Quality, R&D) and Havlund > Disabled Users.
+- Scope: Havlund > Users (IT, HR, Quality, R&D), Havlund > Disabled Users and Havlund > Groups. Admin and service accounts live outside these OUs and don't sync.
 - Leavers: Disabled Users is in scope on purpose. A leaver's Entra account is disabled, not deleted, so the audit trail stays. Deleting an account should be a separate, approved step after a retention period.
 - Source of truth: once synced, AD owns these users. Changes start in HR, go through Okta to AD, then to Entra.
 - Accounts: the agent runs as a gMSA, so AD manages its password. It signs in to Entra with a cloud-only account that only has the Hybrid Identity Administrator role.
+- Groups: the HP- groups sync too, so access is visible in Entra. Synced groups can't be edited in Entra.
+- Safety: sync failures send an email alert. Sync stops if one run would delete more than 5 objects.
+- Account expiry (accountExpires) doesn't sync to Entra. Contractors must be disabled on their end date, not just expired.
 
 ## Note
 Some fields may not pass through every system the way this table shows. Each one gets tested during the build. Anything that doesn't work goes in the problem log with the fix.

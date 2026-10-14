@@ -14,4 +14,5 @@ Shortcuts I took in this lab and what a real company would do instead.
 | Okta keeps logs 90 days, Entra 7 to 30 days | Logs go to a SIEM and are kept for years |
 | Drift check runs by hand and writes a CSV | Runs on a schedule, each finding becomes a ticket with an owner |
 | Access exceptions are an entry in a JSON file | A ticket with an approver, a reason and an end date |
-| No MFA or sign-in rules for users | MFA required for everyone (covered in my next project) |
+| Sync failure alerts go to my own email | A shared IAM team mailbox or ticket queue |
+| No MFA or sign-in rules for users in Okta or Entra | MFA required for everyone (covered in my next project) |

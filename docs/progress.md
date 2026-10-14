@@ -32,6 +32,9 @@ Where the lab stands right now. Updated as each part is finished.
 - Created a cloud-only sync admin (hp-sync-admin) on the onmicrosoft.com domain with only the Hybrid Identity Administrator role and MFA
 - Installed the Cloud Sync agent on HP-DC01. It runs as a gMSA (provAgentgMSA) that the installer created
 - Decided to sync Disabled Users too, so leavers are disabled in Entra instead of deleted
+- Created the Cloud Sync config: scoped to the 4 department OUs, Disabled Users and Groups. Password hash sync on, failure alerts on, accidental delete limit lowered from 500 to 5
+- Tested before turning sync on (provision on demand): Mette Nielsen (joiner) created with the right employee ID, title and department. Freja Mortensen (leaver) created disabled, with her removed groups in the description. hpadmin blocked by scope
+- AD to Entra working: 7 users synced (5 enabled, 2 disabled leavers) and all 9 HP- groups. HP-QA-Approve has the 3 QA Managers and HP-QA-Edit is empty, so no SOD conflict in Entra. Admin and service accounts stayed out
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -51,7 +54,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Create the Cloud Sync configuration in Entra: scope it to the 4 department OUs and Disabled Users, check the field mapping, then confirm users show as synced from on-premises.
+Roadmap step 7: drift check part 2. Add AD and Entra to drift_check.py (leavers still enabled, accounts with no HR record, wrong groups and SOD conflicts in each system).
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
@@ -74,3 +77,5 @@ Create the Cloud Sync configuration in Entra: scope it to the 4 department OUs a
 - Test the duplicate-name rule: the second Emily Carter (1014, R&D) is outside the pilot, so emily.carter2 was never made.
 - Have hr_to_okta.py save a run log (CSV of every change), like leaver_cleanup.ps1 does.
 - Add a simple access review report: each manager's people and their groups, for sign-off.
+- Use one time zone (UTC) for dates in logs and account notes. Freja's HR end date is 2026-10-12 but her AD note says disabled 2026-10-13 because the server runs on UTC.
+- Security defaults are off in Entra, so synced users can sign in to Microsoft 365 with only a password. Fix with sign-in security (Conditional Access).
