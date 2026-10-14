@@ -223,3 +223,6 @@ __marimo__/
 reports/drift_report.csv
 # Private notes for the AI (never pushed)
 .private/
+*.pem
+# Live AD export, made fresh on every run
+reports/ad_export.csv

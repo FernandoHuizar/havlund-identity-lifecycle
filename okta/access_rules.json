@@ -25,6 +25,8 @@
     ["HP-QA-Edit", "HP-QA-Approve"]
   ],
   "approved_exceptions": {
-    "00u15uz5cl4rmk1K5698": "Lab Okta admin account. Not an HR employee. Approved by Fernando Huizar on 2026-10-11."
+    "00u15uz5cl4rmk1K5698": "Lab Okta admin account. Not an HR employee. Approved by Fernando Huizar on 2026-10-11.",
+    "4c4b1f85-d424-4a2c-8e2f-c8f63e41dd81": "Lab Entra admin account (cloud-only). Not an HR employee. Approved by Fernando Huizar on 2026-10-13.",
+    "6a872705-6d1a-42fc-a9bd-5321f7f12fa6": "hp-sync-admin, Cloud Sync admin account (cloud-only). Not an HR employee. Approved by Fernando Huizar on 2026-10-13."
   }
 }

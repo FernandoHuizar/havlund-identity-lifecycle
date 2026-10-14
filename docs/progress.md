@@ -35,6 +35,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Created the Cloud Sync config: scoped to the 4 department OUs, Disabled Users and Groups. Password hash sync on, failure alerts on, accidental delete limit lowered from 500 to 5
 - Tested before turning sync on (provision on demand): Mette Nielsen (joiner) created with the right employee ID, title and department. Freja Mortensen (leaver) created disabled, with her removed groups in the description. hpadmin blocked by scope
 - AD to Entra working: 7 users synced (5 enabled, 2 disabled leavers) and all 9 HP- groups. HP-QA-Approve has the 3 QA Managers and HP-QA-Edit is empty, so no SOD conflict in Entra. Admin and service accounts stayed out
+- Drift check part 2 working: drift_check.py now checks Okta, AD and Entra against HR with the same rules, plus a new AD check for leavers left in a department OU. Entra is read with a read-only app (havlund-drift-check, certificate sign-in, User.Read.All and GroupMember.Read.All). AD is read from an export made on the DC (ad/export_ad_state.ps1). First run: 3 findings, test.leaver in AD and Entra and alex.vendor in Okta (no employee ID)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -54,7 +55,7 @@ Where the lab stands right now. Updated as each part is finished.
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Roadmap step 7: drift check part 2. Add AD and Entra to drift_check.py (leavers still enabled, accounts with no HR record, wrong groups and SOD conflicts in each system).
+Decide what to do with the 3 drift findings (test.leaver, alex.vendor), then test drift check part 2 with problems made on purpose in AD and Entra. Then roadmap step 8: contractor expiry and rehires.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
