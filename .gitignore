@@ -219,10 +219,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Live drift report, made fresh on every run (a sample is kept in reports/)
+# ---- Lab files ----
+# Live reports, made fresh on every run (a sample is kept in reports/)
 reports/drift_report.csv
-# Private notes for the AI (never pushed)
-.private/
-*.pem
-# Live AD export, made fresh on every run
 reports/ad_export.csv
+# Private notes (never pushed)
+.private/
+# Private keys and certificates
+*.pem
