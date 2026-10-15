@@ -1,2 +1,102 @@
-# havlund-identity-lifecycle
-HR-driven identity lifecycle lab: HR → Okta → AD → Entra ID
+# Havlund Pharma: HR-driven identity lifecycle
+
+New hires at a pharma company wait days for access, people who leave keep it too long, and nobody can easily show who has access to what. In pharma that matters more, because rules like GDPR, NIS2 and FDA 21 CFR Part 11 expect controlled access and a record of every change. This lab automates joiners, movers and leavers from HR through Okta, Active Directory and Entra ID, and checks every system against HR to catch anything that drifts.
+
+Personal lab with fake people and a made-up company. It shows the kind of controls those rules look for. It doesn't claim compliance.
+
+## What it does in 30 seconds
+
+HR sends a CSV export, the way Workday or ADP would. A Python script reads it and keeps Okta in line with HR: new hires get an account and the groups for their job, people who change jobs lose their old groups before getting new ones, and leavers lose every group and get their account turned off. Okta creates the accounts in Active Directory and pushes the groups there, and Entra Cloud Sync copies AD into Entra ID. A second script, the drift check, reads Okta, AD and Entra and reports anything that doesn't match HR, like a leaver who still has access or someone in two groups that must never be together.
+
+```mermaid
+flowchart LR
+    HR["HR export (CSV)"] --> SYNC["hr_to_okta.py"]
+    SYNC --> OKTA["Okta"]
+    OKTA -- "Okta AD agent" --> AD["Active Directory"]
+    AD -- "Entra Cloud Sync" --> ENTRA["Entra ID"]
+    CLEAN["leaver_cleanup.ps1"] --> AD
+    HR --> DRIFT["drift_check.py"]
+    OKTA -. "read only" .-> DRIFT
+    AD -. "export file" .-> DRIFT
+    ENTRA -. "read only (Graph)" .-> DRIFT
+    DRIFT --> REPORT["drift_report.csv"]
+```
+
+## How each part of the lifecycle works
+
+| Event | What happens |
+|---|---|
+| Joiner | Account created in Okta with the username rule (first.last), matched on employee ID, and the groups for the job. Okta creates the AD account in the right department OU. Cloud Sync copies it to Entra. |
+| Mover | Title and department updated. Old groups removed first, then new ones added, so nobody holds both. |
+| Leaver | All groups removed and the account turned off, never deleted, so the audit trail stays. A cleanup script removes the AD groups Okta leaves behind and moves the account to Disabled Users. The account syncs to Entra as disabled. |
+| Contractor end date | When the end date passes, the person is treated as a leaver even if HR still says Active. |
+| Rehire | The same account is turned back on with only the new job's groups, and only if HR shows a start date after the account was turned off. Otherwise a person reviews it. |
+
+## Access rules
+
+- Each of the 8 job roles gets its groups on day one (`okta/access_rules.json`).
+- Nobody can be in HP-QA-Edit and HP-QA-Approve at the same time. The person who writes a quality record can't approve it.
+- Accounts that aren't in HR, like admin accounts, are listed as approved exceptions with who approved them and when.
+
+## What the drift check finds
+
+| Check | Example |
+|---|---|
+| LEAVER_STILL_ACTIVE | Terminated in HR, or contract ended, but the account is still on |
+| SOD_CONFLICT | In both QA groups |
+| ORPHAN_ACCOUNT / NO_EMPLOYEE_ID | An account with no matching HR record |
+| EXTRA_ACCESS / MISSING_ACCESS | Groups that don't match the job |
+| PROFILE_MISMATCH | Title or department different from HR |
+| MISSING_ACCOUNT | Active in HR but no working account |
+| LEAVER_NOT_MOVED (AD) | Leaver still in a department OU, so the cleanup didn't run |
+
+It only reads. A person reviews each finding before anything is fixed. See `reports/sample-drift-report.csv`.
+
+## Results I actually ran
+
+- 15 fake employees in HR. 7 in the Okta pilot (IT and Quality), because the free Okta plan allows 10 active users.
+- 9 access groups and 8 job roles.
+- Joiner: 7 users created with the right groups in one run.
+- Leaver: groups removed and account turned off within about 1 second, each step in the Okta System Log.
+- Before turning on Entra sync, tested 3 cases: a joiner, a leaver (arrived disabled) and an admin account (blocked by scope).
+- Drift check: 3 problems made by hand in AD gave 8 findings, each caught in both AD and Entra. After fixing AD and waiting for sync, clean across all three systems.
+- Contractor end date and rehire tested end to end through Okta, AD and Entra.
+
+## Problems I ran into
+
+The full list with causes and fixes is in [docs/problem-log.md](docs/problem-log.md). The ones that taught me the most:
+
+- **Wrong sign-in name in AD.** Okta let AD be the source of Okta profiles by default and rewrote usernames. Found it in the Okta System Log, made Okta the only source of truth.
+- **Leavers kept their AD groups.** Okta removed the groups and turned the account off one second later, so the group removals never reached AD. Wrote a cleanup script, and the drift check now flags it if the cleanup didn't run.
+- **Sync stopped overnight.** The lab server shuts down at night, so Entra paused sync and sent the failure alert email. The drift check then found an account I'd deleted in AD still sitting in Entra. Restarting sync fixed it.
+
+## Lab vs real world
+
+Shortcuts I took and what a real company would do instead: [docs/lab-vs-real-world.md](docs/lab-vs-real-world.md).
+
+## Repo layout
+
+| Folder | What's in it |
+|---|---|
+| `scripts/` | `hr_to_okta.py` (joiner, mover, leaver, contractor, rehire), `drift_check.py`, `okta_client.py` and `graph_client.py` (sign-in), `setup_okta_groups.py` |
+| `ad/` | `leaver_cleanup.ps1` and `export_ad_state.ps1`, run on the domain controller |
+| `okta/` | `access_rules.json`: groups, roles, SOD rule, approved exceptions |
+| `sample-data/` | `hr_export.csv`, the fake HR export |
+| `reports/` | Sample drift report |
+| `docs/` | Design, build progress, problem log, lab vs real world |
+| `screenshots/` | One per key event |
+
+## How to run
+
+1. `pip install -r requirements.txt`
+2. Copy `.env.example` to `.env` and fill in your Okta and Entra app details. Private keys stay outside the repo.
+3. `python scripts/setup_okta_groups.py --dry-run`, then without `--dry-run`
+4. `python scripts/hr_to_okta.py --dry-run`, then without `--dry-run`
+5. On the domain controller: `ad/leaver_cleanup.ps1 -DryRun` and `ad/export_ad_state.ps1`. Copy the export to `reports/ad_export.csv`.
+6. `python scripts/drift_check.py`
+
+Both sync apps sign in with a private key or certificate, not a password. The Entra app can only read.
+
+## Built with
+
+Okta (Integrator Free Plan), Active Directory on Windows Server 2022 in Azure, Microsoft Entra ID with Entra Cloud Sync, Python (requests, PyJWT, msal), PowerShell.
