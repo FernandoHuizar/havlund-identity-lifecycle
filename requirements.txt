@@ -1,5 +1,5 @@
-   requests==2.34.2
-   PyJWT==2.15.1
-   cryptography==50.0.2
-   python-dotenv==1.2.4
-   msal==1.39.0
+requests==2.34.2
+PyJWT==2.15.1
+cryptography==50.0.2
+python-dotenv==1.2.4
+msal==1.39.0
