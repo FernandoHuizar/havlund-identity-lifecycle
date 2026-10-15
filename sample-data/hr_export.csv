@@ -1,7 +1,7 @@
 employee_id,first_name,last_name,department,job_title,employee_type,status,start_date,end_date,manager_id,location
 1001,Mette,Nielsen,IT,System Administrator,Employee,Active,2023-03-06,,,Sacramento
-1002,Jordan,Reyes,IT,IT Support Specialist,Employee,Terminated,2024-08-19,2026-10-10,1001,Sacramento
-1003,Priya,Shah,IT,IT Support Specialist,Contractor,Active,2026-09-01,2026-12-31,1001,Sacramento
+1002,Jordan,Reyes,IT,IT Support Specialist,Employee,Active,2026-10-14,,1001,Sacramento
+1003,Priya,Shah,IT,IT Support Specialist,Contractor,Active,2026-09-01,2026-10-13,1001,Sacramento
 1004,Lars,Andersen,HR,HR Manager,Employee,Active,2022-01-10,,,Horsens
 1005,Megan,Brooks,HR,HR Generalist,Employee,Active,2025-02-03,,1004,Sacramento
 1006,Ashley,Nguyen,HR,HR Generalist,Employee,Active,2025-07-14,,1004,Sacramento

@@ -39,6 +39,9 @@ Where the lab stands right now. Updated as each part is finished.
 - Handled the drift findings: deleted test.leaver in AD (Entra moved it to Deleted users after sync) and the alex.vendor test account in Okta. Both were test accounts with no HR record or owner
 - Found sync quarantined after the nightly VM shutdown (problem 9). Restarted it and the drift check came back clean across Okta, AD and Entra
 - Tested drift check part 2 on purpose: changed AD by hand (David Kim added to HP-QA-Edit, Freja Mortensen turned back on, Sofie Larsen's title changed). The check found all 8 findings, each in both AD and Entra, and Okta stayed clean. Fixed AD to match HR. New sample report saved
+- Contractor expiry working: hr_to_okta.py now treats anyone whose end date has passed as a leaver, even if HR still says Active. Tested with Priya Shah (end date set to 2026-10-13, status left Active): groups removed and account turned off in Okta, AD disabled, leaver cleanup moved her to Disabled Users, Entra disabled after sync
+- Rehire working: if a turned-off person is Active in HR with a start date after their account was turned off, the script turns the same account back on with only the new job's groups. An older start date goes to Needs review, a future start date waits. Tested with Jordan Reyes: same Okta account, new AD account in the IT OU with HP-All-Staff and HP-IT-Support, synced to Entra
+- Drift check uses the same end date rule. After the test it came back clean across Okta, AD and Entra (Entra 9 accounts with Jordan)
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -53,12 +56,12 @@ Where the lab stands right now. Updated as each part is finished.
 5. Okta to AD: install Okta AD agent, turn on Create Users with an OU per department, push HP- groups into the Havlund > Groups OU, test joiner/mover/leaver into AD (leavers disabled and moved to Disabled Users)
 6. AD to Entra: Entra Cloud Sync, sync the 4 department OUs and Disabled Users, check field mapping, confirm users show as synced from on-premises
 7. Drift check part 2: add AD and Entra to drift_check.py
-8. Contractor expiry (endDate in Okta, accountExpires in AD) and rehire handling
+8. Contractor expiry and rehire handling (done: end date in the HR export drives the leaver flow, rehires reuse the same account)
 9. README with Mermaid diagram, demo, cost cleanup (delete rg-havlund-lab when done)
 10. Resume bullets and interview walkthrough
 
 ## Next step
-Roadmap step 8: contractor expiry and rehires. Priya Shah's contract ends 2026-12-31. Her account must be disabled on that date, because AD account expiry doesn't reach Entra.
+Find out why Okta creates "accounts need deprovisioning" tasks (Priya's deactivation made a DeprovisionTask on the AD app). Then roadmap step 9: README with diagram, demo, cost cleanup.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
@@ -67,15 +70,13 @@ Roadmap step 8: contractor expiry and rehires. Priya Shah's contract ends 2026-1
 - The disk costs money even when the VM is off, so only build it when step 4 starts. Delete the whole resource group when the lab is done.
 
 ## Later
-- Add a custom endDate field in Okta for contractor expiry.
-- Handle rehires (the sync script flags them as "Needs review" for now).
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
 - Change the havlund-lab budget alert email to my Gmail.
 - Portfolio plan: Project 2 = app onboarding in Okta (SAML, OIDC, SCIM, MFA, runbook). Project 3 = not decided yet: either Entra security (Conditional Access, PIM, break-glass accounts, access reviews; needs a paid P2 month) or a third Okta-focused project. Same Havlund Pharma company, separate repos. Finish this project first.
 - Leaver cleanup scheduled task: svc-leaver needs one more right to move accounts to Disabled Users. Task is disabled for now.
 - Map the AD manager field (AD needs the manager's AD path, not their employee ID).
 - Find out why Okta users went from Pending user action to Active when they were assigned to AD.
-- Find out why Okta made 107 "accounts need deprovisioning" tasks before clearing them.
+- Find out why Okta made 107 "accounts need deprovisioning" tasks before clearing them. Clue: Priya's deactivation on 2026-10-14 logged "Deprovision user from external application" with a DeprovisionTask on the AD app.
 - Turn on LDAPS for the Okta AD agent (skipped in the lab).
 - Test the duplicate-name rule: the second Emily Carter (1014, R&D) is outside the pilot, so emily.carter2 was never made.
 - Have hr_to_okta.py save a run log (CSV of every change), like leaver_cleanup.ps1 does.
@@ -83,3 +84,4 @@ Roadmap step 8: contractor expiry and rehires. Priya Shah's contract ends 2026-1
 - Use one time zone (UTC) for dates in logs and account notes. Freja's HR end date is 2026-10-12 but her AD note says disabled 2026-10-13 because the server runs on UTC.
 - Security defaults are off in Entra, so synced users can sign in to Microsoft 365 with only a password. Fix with sign-in security (Conditional Access).
 - Check the Cloud Sync status at the start of each lab session. The nightly VM shutdown pauses it.
+- Okta pushes group changes to AD about 2 minutes after the account is created. Run the AD export a few minutes after hr_to_okta.py, or the drift check shows false MISSING_ACCESS findings.

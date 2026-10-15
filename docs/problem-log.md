@@ -67,6 +67,8 @@ Lesson: Disabling an account isn't the whole leaver process. Check what the IAM 
 
 Follow-up: Set the cleanup up as a scheduled task under a gMSA (svc-leaver) with rights only on the Havlund OUs. Removing groups and writing the description worked, but the move to Disabled Users failed on a missing permission and the script still said it succeeded. Added $ErrorActionPreference = 'Stop' so errors stop the script, disabled the task, and run the cleanup by hand for now.
 
+Seen again on 2026-10-14 when Priya Shah's contract ended: AD account disabled but still in 3 groups and in the IT OU. The drift check flagged EXTRA_ACCESS and LEAVER_NOT_MOVED, and the cleanup fixed both. This is a known gap in how Okta handles leavers, so the cleanup stays part of the process.
+
 ## 8. Sync agent couldn't sign in to Entra
 Problem: The Cloud Sync setup wizard couldn't load the Microsoft sign-in page. A pop-up said the content was blocked by Internet Explorer Enhanced Security Configuration.
 

@@ -5,12 +5,16 @@ What it does: Reads the HR export and keeps Okta in line with it.
 - Joiners: new hires are created with the right username, job info, and groups.
 - Movers: if HR changes someone's job, their Okta profile and groups are updated.
   Old groups are removed first, then new ones added, so no leftover access.
-- Leavers: if HR marks someone as no longer active, all their groups are removed
-  and their account is deactivated. Accounts are never deleted.
+- Leavers: if HR marks someone as no longer active, or a contractor's end date
+  has passed, all their groups are removed and their account is deactivated.
+  Accounts are never deleted.
+- Rehires: if someone comes back (active in HR with a start date after their
+  account was turned off), the same account is turned back on with only the
+  groups for their new job. If the start date is older, a person reviews it.
 People are always matched on employee ID, never on name.
 
 Inputs: sample-data/hr_export.csv, okta/access_rules.json, .env
-Outputs: prints what it created, updated, offboarded, or left alone
+Outputs: prints what it created, updated, offboarded, rehired, or left alone
 How to run:
   python scripts/hr_to_okta.py --dry-run   (shows what would happen)
   python scripts/hr_to_okta.py             (makes the changes)
@@ -20,6 +24,7 @@ import csv
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 import requests
@@ -39,6 +44,23 @@ PILOT_DEPARTMENTS = {"IT", "Quality"}
 def load_hr_records():
     with open(HR_FILE, newline="", encoding="utf-8") as hr_file:
         return list(csv.DictReader(hr_file))
+
+
+def is_active(record, today=None):
+    """Active in HR and, for anyone with an end date, the end date hasn't passed.
+    The end date is their last working day, so access ends the day after.
+    This catches contractors whose contract ended but HR never marked them."""
+    today = today or date.today()
+    if record["status"] != "Active":
+        return False
+    return not (record["end_date"] and date.fromisoformat(record["end_date"]) < today)
+
+
+def leaver_reason(record):
+    """Why someone counts as a leaver, in plain words for the output."""
+    if record["status"] != "Active":
+        return f"HR status {record['status']}, end date {record['end_date'] or 'none'}"
+    return f"contract ended {record['end_date']}"
 
 
 def okta_request(method, path, headers, params=None, body=None):
@@ -169,6 +191,17 @@ def offboard_user(okta_user, group_ids, managed_groups, headers):
     return changes
 
 
+def rehire_user(okta_user, record, groups, group_ids, managed_groups, headers):
+    """Rehire: turn the old account back on, then give it the new job's info and
+    groups. The leaver step removed every group, so no old access comes back."""
+    changes = ["turn account back on"]
+    if not DRY_RUN:
+        okta_request("POST", f"/api/v1/users/{okta_user['id']}/lifecycle/activate", headers,
+                     params={"sendEmail": "false"})
+    changes += update_user(okta_user, record, groups, group_ids, managed_groups, headers)
+    return changes
+
+
 def main():
     records = load_hr_records()
     rules = json.loads(RULES_FILE.read_text(encoding="utf-8"))
@@ -192,23 +225,22 @@ def main():
     }
 
     pilot = [r for r in records if r["department"] in PILOT_DEPARTMENTS]
-    created = updated = offboarded = unchanged = review = 0
+    created = updated = offboarded = rehired = unchanged = review = 0
 
     for record in sorted(pilot, key=lambda r: int(r["employee_id"])):
         employee_id = record["employee_id"]
         okta_user = by_employee_id.get(employee_id)
 
-        # Leaver: HR says this person no longer works here
-        if record["status"] != "Active":
+        # Leaver: HR says this person no longer works here, or their contract ended
+        if not is_active(record):
             if okta_user is None or okta_user["status"] == "DEPROVISIONED":
-                print(f"No changes: {employee_id} already off ({record['status']} in HR)")
+                print(f"No changes: {employee_id} already off ({leaver_reason(record)})")
                 unchanged += 1
                 continue
             login = okta_user["profile"]["login"]
             changes = offboard_user(okta_user, group_ids, managed_groups, headers)
-            end_date = record["end_date"] or "none"
             print(f"{'Would offboard' if DRY_RUN else 'Offboarded'}: {employee_id} {login} "
-                  f"(HR status {record['status']}, end date {end_date})")
+                  f"({leaver_reason(record)})")
             for change in changes:
                 print(f"      {change}")
             offboarded += 1
@@ -220,8 +252,25 @@ def main():
         if okta_user is not None:
             login = okta_user["profile"]["login"]
             if okta_user["status"] == "DEPROVISIONED":
-                print(f"Needs review: {employee_id} {login} is Active in HR but deactivated in Okta (possible rehire)")
-                review += 1
+                # Only a new start date after the account was turned off counts as
+                # a rehire. Otherwise the account may have been turned off by
+                # mistake, so a person checks it instead of the script.
+                turned_off_on = okta_user["statusChanged"][:10]
+                if record["start_date"] > str(date.today()):
+                    print(f"Waiting: {employee_id} {login} is rehired but starts {record['start_date']}. "
+                          "No access before then")
+                    unchanged += 1
+                elif record["start_date"] > turned_off_on:
+                    changes = rehire_user(okta_user, record, groups, group_ids, managed_groups, headers)
+                    print(f"{'Would rehire' if DRY_RUN else 'Rehired'}: {employee_id} {login} "
+                          f"(new start date {record['start_date']}, account was turned off {turned_off_on})")
+                    for change in changes:
+                        print(f"      {change}")
+                    rehired += 1
+                else:
+                    print(f"Needs review: {employee_id} {login} is Active in HR but turned off in Okta "
+                          f"since {turned_off_on}, and the HR start date ({record['start_date']}) is older")
+                    review += 1
                 continue
             changes = update_user(okta_user, record, groups, group_ids, managed_groups, headers)
             if changes:
@@ -242,7 +291,7 @@ def main():
         print(f"{'Would create' if DRY_RUN else 'Created'}: {employee_id} {login} -> {', '.join(groups)}")
         created += 1
 
-    summary = (f"created {created}, updated {updated}, offboarded {offboarded}, "
+    summary = (f"created {created}, updated {updated}, offboarded {offboarded}, rehired {rehired}, "
                f"no changes {unchanged}, needs review {review}")
     if DRY_RUN:
         print(f"\nDry run: would have {summary}. Nothing was changed.")
@@ -251,4 +300,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()

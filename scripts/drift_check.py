@@ -7,7 +7,7 @@ It only reads. It never changes any system, because a person should review
 each finding before anything is fixed.
 
 Checks (in every system unless noted):
-- LEAVER_STILL_ACTIVE: not active in HR, but the account is still on
+- LEAVER_STILL_ACTIVE: not active in HR (or contract ended), but the account is still on
 - SOD_CONFLICT: in two groups that must never be together
 - ORPHAN_ACCOUNT: account is on, but its employee ID isn't in HR
 - LEAVER_NOT_MOVED (AD only): leaver is still in a department OU, so the
@@ -38,6 +38,8 @@ from hr_to_okta import (
     RULES_FILE,
     get_okta_users,
     groups_for,
+    is_active,
+    leaver_reason,
     load_hr_records,
     okta_request,
 )
@@ -165,10 +167,10 @@ def check_system(system, accounts, records, rules, exceptions, add):
                 add(system, "ORPHAN_ACCOUNT", employee_id, login, "Account is on but this employee ID is not in HR.")
             continue
 
-        if record["status"] != "Active":
+        if not is_active(record):
             if acct["is_on"]:
                 add(system, "LEAVER_STILL_ACTIVE", employee_id, login,
-                    f"HR status is {record['status']} (end date {record['end_date'] or 'none'}) but the account is still on.")
+                    f"No longer active in HR ({leaver_reason(record)}) but the account is still on.")
             if groups:
                 add(system, "EXTRA_ACCESS", employee_id, login,
                     f"No longer works here but is still in: {', '.join(sorted(groups))}")
@@ -195,7 +197,7 @@ def check_system(system, accounts, records, rules, exceptions, add):
 
     # Active pilot people in HR with no working account in this system
     for record in records:
-        if record["status"] != "Active" or record["department"] not in PILOT_DEPARTMENTS:
+        if not is_active(record) or record["department"] not in PILOT_DEPARTMENTS:
             continue
         acct = by_employee_id.get(record["employee_id"])
         if acct is None or not acct["is_on"]:
@@ -249,4 +251,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()

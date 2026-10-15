@@ -39,9 +39,10 @@ Each role gets these groups automatically on day one.
 
 ## Access rules
 - Nobody can be in HP-QA-Edit and HP-QA-Approve at the same time. The person who writes a quality record can't approve it.
-- Contractors also get HP-Contractors. Their account turns off on their end date.
+- Contractors also get HP-Contractors. Their access ends after their end date, even if HR forgets to mark them terminated. The end date in the HR export drives this, the same as a leaver.
 - When someone leaves, all access is removed the same day.
 - When someone changes jobs, old groups are removed and new ones added. No leftover access.
+- When someone is rehired, the same account is turned back on (same username and history) with only the groups for their new job. This only happens if HR shows a start date after the account was turned off. Otherwise a person reviews it, and a future start date gets no access before that day.
 
 ## Field map
 How each HR field shows up in the other systems.
@@ -56,7 +57,7 @@ How each HR field shows up in the other systems.
 | manager_id | managerId | manager | manager |
 | employee_type | userType | employeeType | employeeType |
 | status | user status | enabled or disabled | accountEnabled |
-| end_date | endDate (custom field, added later) | accountExpires | not synced (account must be disabled on the end date instead) |
+| end_date | not stored, the sync script reads it from HR | not used, the account is disabled instead | not synced, disabled through AD instead |
 
 ## Username rule
 - Login and email: first.last@havlundpharma.com, all lowercase.
