@@ -17,7 +17,7 @@ $ErrorActionPreference = 'Stop'
 $usersOU    = "OU=Users,OU=Havlund,DC=corp,DC=havlundpharma,DC=com"
 $disabledOU = "OU=Disabled Users,OU=Havlund,DC=corp,DC=havlundpharma,DC=com"
 $logFile    = "C:\HavlundLogs\leaver_cleanup.csv"
-$today      = Get-Date -Format "yyyy-MM-dd"
+$today      = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")  # UTC, same as the other logs
 
 # Disabled accounts that haven't been cleaned up yet
 $leavers = Get-ADUser -Filter 'Enabled -eq $false' -SearchBase $usersOU -Properties memberOf
@@ -36,7 +36,7 @@ foreach ($user in $leavers) {
     foreach ($groupDN in $user.memberOf) {
         Remove-ADGroupMember -Identity $groupDN -Members $user -Confirm:$false
     }
-    Set-ADUser $user -Description "Disabled $today. Groups removed: $groupList"
+    Set-ADUser $user -Description "Disabled $today (UTC). Groups removed: $groupList"
     Move-ADObject -Identity $user.DistinguishedName -TargetPath $disabledOU
 
     New-Item -ItemType Directory -Path (Split-Path $logFile) -Force | Out-Null
