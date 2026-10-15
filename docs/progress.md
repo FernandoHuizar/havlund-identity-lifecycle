@@ -42,6 +42,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Contractor expiry working: hr_to_okta.py now treats anyone whose end date has passed as a leaver, even if HR still says Active. Tested with Priya Shah (end date set to 2026-10-13, status left Active): groups removed and account turned off in Okta, AD disabled, leaver cleanup moved her to Disabled Users, Entra disabled after sync
 - Rehire working: if a turned-off person is Active in HR with a start date after their account was turned off, the script turns the same account back on with only the new job's groups. An older start date goes to Needs review, a future start date waits. Tested with Jordan Reyes: same Okta account, new AD account in the IT OU with HP-All-Staff and HP-IT-Support, synced to Entra
 - Drift check uses the same end date rule. After the test it came back clean across Okta, AD and Entra (Entra 9 accounts with Jordan)
+- README written: business problem, Mermaid diagram, 30-second summary, lifecycle table, drift checks, results I actually ran, top problems, how to run. Resume bullets and the project walkthrough are in my private notes
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -57,11 +58,11 @@ Where the lab stands right now. Updated as each part is finished.
 6. AD to Entra: Entra Cloud Sync, sync the 4 department OUs and Disabled Users, check field mapping, confirm users show as synced from on-premises
 7. Drift check part 2: add AD and Entra to drift_check.py
 8. Contractor expiry and rehire handling (done: end date in the HR export drives the leaver flow, rehires reuse the same account)
-9. README with Mermaid diagram, demo, cost cleanup (delete rg-havlund-lab when done)
-10. Resume bullets and interview walkthrough
+9. README with Mermaid diagram (done). Cost cleanup (delete rg-havlund-lab) when I'm done with the lab
+10. Resume bullets and interview walkthrough (done, in private notes)
 
 ## Next step
-Find out why Okta creates "accounts need deprovisioning" tasks (Priya's deactivation made a DeprovisionTask on the AD app). Then roadmap step 9: README with diagram, demo, cost cleanup.
+Project finished. Decide when to delete rg-havlund-lab: it stops the cost, but AD, both agents and the sync stop with it (the repo and screenshots stay). Items under Later are open questions, not required. Then Project 2.
 
 ## Planned: Azure VM (build order step 4)
 - Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
