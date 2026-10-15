@@ -42,7 +42,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Contractor expiry working: hr_to_okta.py now treats anyone whose end date has passed as a leaver, even if HR still says Active. Tested with Priya Shah (end date set to 2026-10-13, status left Active): groups removed and account turned off in Okta, AD disabled, leaver cleanup moved her to Disabled Users, Entra disabled after sync
 - Rehire working: if a turned-off person is Active in HR with a start date after their account was turned off, the script turns the same account back on with only the new job's groups. An older start date goes to Needs review, a future start date waits. Tested with Jordan Reyes: same Okta account, new AD account in the IT OU with HP-All-Staff and HP-IT-Support, synced to Entra
 - Drift check uses the same end date rule. After the test it came back clean across Okta, AD and Entra (Entra 9 accounts with Jordan)
-- README written: business problem, Mermaid diagram, 30-second summary, lifecycle table, drift checks, results I actually ran, top problems, how to run. Resume bullets and the project walkthrough are in my private notes
+- README written: business problem, Mermaid diagram, 30-second summary, lifecycle table, drift checks, results I actually ran, top problems, how to run.
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -59,16 +59,9 @@ Where the lab stands right now. Updated as each part is finished.
 7. Drift check part 2: add AD and Entra to drift_check.py
 8. Contractor expiry and rehire handling (done: end date in the HR export drives the leaver flow, rehires reuse the same account)
 9. README with Mermaid diagram (done). Cost cleanup (delete rg-havlund-lab) when I'm done with the lab
-10. Resume bullets and interview walkthrough (done, in private notes)
 
 ## Next step
 Project finished. Decide when to delete rg-havlund-lab: it stops the cost, but AD, both agents and the sync stop with it (the repo and screenshots stay). Items under Later are open questions, not required. Then Project 2.
-
-## Planned: Azure VM (build order step 4)
-- Subscription havlund-lab (Havlund Pharma tenant) with a $10 budget.
-- VM HP-DC01 in resource group rg-havlund-lab, West US 2, Windows Server 2022 Datacenter Gen2, Standard_B2ls_v2, admin user hpadmin.
-- No open inbound ports except RDP from my home IP only. Auto-shutdown every night. No Hybrid Benefit. Check the price before clicking Create.
-- The disk costs money even when the VM is off, so only build it when step 4 starts. Delete the whole resource group when the lab is done.
 
 ## Later
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
@@ -82,7 +75,7 @@ Project finished. Decide when to delete rg-havlund-lab: it stops the cost, but A
 - Test the duplicate-name rule: the second Emily Carter (1014, R&D) is outside the pilot, so emily.carter2 was never made.
 - Have hr_to_okta.py save a run log (CSV of every change), like leaver_cleanup.ps1 does.
 - Add a simple access review report: each manager's people and their groups, for sign-off.
-- Use one time zone (UTC) for dates in logs and account notes. Freja's HR end date is 2026-10-12 but her AD note says disabled 2026-10-13 because the server runs on UTC.
+- Use one time zone (UTC) for dates everywhere. The leaver cleanup now writes UTC dates and says so. Freja's older note (disabled 2026-10-13, HR end date 2026-10-12) shows why.
 - Security defaults are off in Entra, so synced users can sign in to Microsoft 365 with only a password. Fix with sign-in security (Conditional Access).
 - Check the Cloud Sync status at the start of each lab session. The nightly VM shutdown pauses it.
 - Okta pushes group changes to AD about 2 minutes after the account is created. Run the AD export a few minutes after hr_to_okta.py, or the drift check shows false MISSING_ACCESS findings.
