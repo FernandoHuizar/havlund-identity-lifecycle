@@ -1,8 +1,36 @@
 # Havlund Pharma: HR-driven identity lifecycle
 
-New hires at a pharma company wait days for access, people who leave keep it too long, and nobody can easily show who has access to what. In pharma that matters more, because rules like GDPR, NIS2 and FDA 21 CFR Part 11 expect controlled access and a record of every change. This lab automates joiners, movers and leavers from HR through Okta, Active Directory and Entra ID, and checks every system against HR to catch anything that drifts.
+**The problem:** new hires wait days for access, people who leave keep it too long, and nobody can easily show who has access to what.
 
-Personal lab with fake people and a made-up company. It shows the kind of controls those rules look for. It doesn't claim compliance.
+**What I built:** HR changes flow automatically into Okta, Active Directory and Entra ID. A second script checks all three against HR and flags anything that doesn't match.
+
+## Results at a glance
+
+| What I tested | What happened |
+|---|---|
+| New hires | 7 accounts created with the right access in one run |
+| Leaver | All access removed and account turned off in about 1 second, every step logged |
+| Drift check | 3 problems I planted by hand gave 8 findings, each caught in both AD and Entra |
+| After fixing | Clean across Okta, AD and Entra |
+| Contractor end date and rehire | Tested end to end in all three systems |
+
+<img src="screenshots/08-drift-check-all-systems.png" width="650" alt="Drift check output">
+
+*The drift check catching a leaver who still has access, a separation of duties conflict, extra access and a wrong title, in both AD and Entra.*
+
+<img src="screenshots/04-leaver-jordan-audit-log.png" width="650" alt="Okta System Log for a leaver">
+
+*A leaver in the Okta System Log: groups removed, account turned off and sessions cleared within 1 second.*
+
+<img src="screenshots/07-entra-synced-users.png" width="650" alt="Users synced into Entra ID">
+
+*Accounts synced into Entra ID. Leavers arrive turned off.*
+
+Personal lab with fake people and a made-up company. Code, problem log and all screenshots are below.
+
+## Why it matters in pharma
+
+Rules like GDPR, NIS2 and FDA 21 CFR Part 11 expect controlled access and a record of every change. This lab shows the kind of controls those rules look for. It doesn't claim compliance.
 
 ## What it does in 30 seconds
 
