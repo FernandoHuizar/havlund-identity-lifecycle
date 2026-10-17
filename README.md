@@ -28,6 +28,26 @@
 
 Personal lab with fake people and a made-up company. Code, problem log and all screenshots are below.
 
+## IAM basics this lab shows
+
+| Idea | What it means | Where it shows up here |
+|---|---|---|
+| Source of truth | One system decides who works here. For people, that's HR, not IT. | Every account and group change starts from the HR export. |
+| Joiner, mover, leaver | The three moments access has to change: someone starts, changes jobs, or leaves. | Each one is handled automatically, plus contractor end dates and rehires. |
+| Role-based access | Access comes from your job, not from who you asked. | 8 job roles, each mapped to its groups in `okta/access_rules.json`. |
+| Least privilege | People get only what their job needs, nothing extra. | A QA Specialist gets QA edit rights, not approve rights. Extra groups get flagged. |
+| Separation of duties | One person can't do two jobs that should check each other. | Whoever writes a quality record can't also approve it. |
+| Access review | Regularly checking that access still matches the job. | The drift check lists what's wrong, and a person decides what to fix. |
+| Audit trail | A record of who changed what and when. | Leavers are turned off, never deleted, and every step is in the Okta System Log. |
+| Exceptions | Accounts that break the rules on purpose, written down with an approver. | Admin accounts are listed with who approved them and when. |
+
+## Analyst tasks this lab practices
+
+- Setting up and removing access when HR says someone started, moved or left
+- Reading an access report and deciding which findings are real problems
+- Using the audit log to show who changed what and when
+- Sending unclear cases to a person, like a rehire without a clear new start date
+
 ## Why it matters in pharma
 
 Rules like GDPR, NIS2 and FDA 21 CFR Part 11 expect controlled access and a record of every change. This lab shows the kind of controls those rules look for. It doesn't claim compliance.
@@ -68,15 +88,15 @@ flowchart LR
 
 ## What the drift check finds
 
-| Check | Example |
-|---|---|
-| LEAVER_STILL_ACTIVE | Terminated in HR, or contract ended, but the account is still on |
-| SOD_CONFLICT | In both QA groups |
-| ORPHAN_ACCOUNT / NO_EMPLOYEE_ID | An account with no matching HR record |
-| EXTRA_ACCESS / MISSING_ACCESS | Groups that don't match the job |
-| PROFILE_MISMATCH | Title or department different from HR |
-| MISSING_ACCOUNT | Active in HR but no working account |
-| LEAVER_NOT_MOVED (AD) | Leaver still in a department OU, so the cleanup didn't run |
+| In plain words | Why it matters | Name in the report |
+|---|---|---|
+| Someone left but can still sign in | The biggest risk: a former employee with access | LEAVER_STILL_ACTIVE |
+| Someone can both write and approve quality records | Breaks separation of duties | SOD_CONFLICT |
+| An account nobody in HR owns | Could be forgotten, shared or misused | ORPHAN_ACCOUNT / NO_EMPLOYEE_ID |
+| More or less access than the job needs | Too much breaks least privilege. Too little stops someone working | EXTRA_ACCESS / MISSING_ACCESS |
+| Job title or department doesn't match HR | Access rules can go wrong when profile data is wrong | PROFILE_MISMATCH |
+| Active in HR but has no working account | A new hire who can't start work | MISSING_ACCOUNT |
+| Leaver's AD account wasn't cleaned up | The leaver step didn't finish in Active Directory | LEAVER_NOT_MOVED |
 
 It only reads. A person reviews each finding before anything is fixed. See `reports/sample-drift-report.csv`.
 
