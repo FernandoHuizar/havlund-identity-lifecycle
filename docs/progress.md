@@ -61,12 +61,13 @@ Where the lab stands right now. Updated as each part is finished.
 9. README with Mermaid diagram (done). Cost cleanup (delete rg-havlund-lab) when I'm done with the lab
 
 ## Next step
-Project finished. Decide when to delete rg-havlund-lab: it stops the cost, but AD, both agents and the sync stop with it (the repo and screenshots stay). Items under Later are open questions, not required. Then Project 2.
+Project 1 is finished. Next is Project 2 (havlund-app-access). Keep rg-havlund-lab until Project 3 is done, target early December 2026. Items under Later are open questions, not required.
 
 ## Later
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
 - Change the havlund-lab budget alert email to my Gmail.
-- Portfolio plan: Project 2 = app onboarding in Okta (SAML, OIDC, SCIM, MFA, runbook). Project 3 = not decided yet: either Entra security (Conditional Access, PIM, break-glass accounts, access reviews; needs a paid P2 month) or a third Okta-focused project. Same Havlund Pharma company, separate repos. Finish this project first.
+- Portfolio plan: see START-HERE.md in the havlund-labs folder. Project 2 = app access (Salesforce through Okta, ServiceNow requests, access review). Project 3 = privileged access with Delinea.
+- Leaver root-cause fix: hr_to_okta.py removes groups and deactivates the user 1 second later, so the removals never reach AD. Fix: remove the groups, wait until the push reaches AD (about 2 minutes), then deactivate. Keep leaver_cleanup.ps1 for the OU move, which Okta can't do, and as a safety net.
 - Leaver cleanup scheduled task: svc-leaver needs one more right to move accounts to Disabled Users. Task is disabled for now.
 - Map the AD manager field (AD needs the manager's AD path, not their employee ID).
 - Find out why Okta users went from Pending user action to Active when they were assigned to AD.
