@@ -1,8 +1,8 @@
-# Havlund Pharma: HR-driven identity lifecycle
+# Havlund Pharma HR-driven identity lifecycle
 
-**The problem:** new hires wait days for access, people who leave keep it too long, and nobody can easily show who has access to what.
+New hires wait days for access, people who leave keep it too long, and nobody can easily show who has access to what. That's the problem this lab fixes.
 
-**What I built:** HR changes flow automatically into Okta, Active Directory and Entra ID. A second script checks all three against HR and flags anything that doesn't match.
+I built a setup where HR changes flow automatically into Okta, Active Directory and Entra ID. A second script checks all three against HR and flags anything that doesn't match.
 
 ## Results at a glance
 

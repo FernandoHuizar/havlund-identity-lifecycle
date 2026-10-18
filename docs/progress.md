@@ -43,6 +43,7 @@ Where the lab stands right now. Updated as each part is finished.
 - Rehire working: if a turned-off person is Active in HR with a start date after their account was turned off, the script turns the same account back on with only the new job's groups. An older start date goes to Needs review, a future start date waits. Tested with Jordan Reyes: same Okta account, new AD account in the IT OU with HP-All-Staff and HP-IT-Support, synced to Entra
 - Drift check uses the same end date rule. After the test it came back clean across Okta, AD and Entra (Entra 9 accounts with Jordan)
 - README written: business problem, Mermaid diagram, 30-second summary, lifecycle table, drift checks, results I actually ran, top problems, how to run.
+- Rewrote the README opening and the problem log in plain sentences (2026-10-18). Wording only, no numbers changed.
 
 ## Build order
 1. HR export (CSV file, like a Workday or ADP feed)
@@ -61,7 +62,7 @@ Where the lab stands right now. Updated as each part is finished.
 9. README with Mermaid diagram (done). Cost cleanup (delete rg-havlund-lab) when I'm done with the lab
 
 ## Next step
-Project 1 is finished. Next is Project 2 (havlund-app-access). Keep rg-havlund-lab until Project 3 is done, target early December 2026. Items under Later are open questions, not required.
+Project 1 is finished, but fixes are still fine. Log them here and re-run anything whose README numbers would change. Next is Project 2 (havlund-app-access). Keep rg-havlund-lab until Project 3 is done, target early December 2026. Items under Later are open questions, not required.
 
 ## Later
 - Add my Gmail as a backup on the Okta admin account (it uses my Sierra College email).
