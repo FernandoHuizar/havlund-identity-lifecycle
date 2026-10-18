@@ -225,5 +225,6 @@ reports/drift_report.csv
 reports/ad_export.csv
 # Private notes (never pushed)
 .private/
+docs/progress.md
 # Private keys and certificates
 *.pem
